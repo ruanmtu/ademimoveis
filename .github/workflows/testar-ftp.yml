@@ -1,4 +1,4 @@
-# Teste de conexão FTP com a Hostinger (somente leitura: lista a public_html, não altera nada).
+# Teste de conexão FTP com a Hostinger (somente leitura: lista a pasta do site, que já é a public_html; não altera nada).
 # Roda quando este arquivo muda ou manualmente em Actions → "Testar conexão FTP" → Run workflow.
 name: Testar conexão FTP
 
@@ -33,5 +33,5 @@ jobs:
         run: |
           sudo apt-get install -y -qq lftp > /dev/null
           HOST="${S#ftp://}"; HOST="${HOST%/}"
-          lftp -u "$U","$P" -p 21 -e "set ftp:ssl-allow no; set net:max-retries 2; set net:timeout 20; cls -l public_html; bye" "$HOST"
+          lftp -u "$U","$P" -p 21 -e "set ftp:ssl-allow no; set net:max-retries 2; set net:timeout 20; pwd; cls -l; bye" "$HOST"
           echo "CONEXÃO FTP OK"
