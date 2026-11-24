@@ -108,7 +108,7 @@ function csrf_check(): void
 // ---------------- Formatação ----------------
 function dinheiro($v): string
 {
-    return 'R$ ' . number_format((float) $v, 2, ',', '.');
+    return "R$\u{00A0}" . number_format((float) $v, 2, ',', '.'); // espaço que não quebra linha
 }
 
 function data_br(?string $d, bool $hora = false): string
@@ -170,6 +170,9 @@ function icone(string $nome, int $tam = 22): string
         'loja'          => '<path d="M4 9h16l-1-5H5zM4 9v11h16V9M4 9c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3c0 1.7 1.3 3 3 3s3-1.3 3-3"/><path d="M10 20v-5h4v5"/>',
         'chave'         => '<circle cx="8" cy="15" r="4"/><path d="m11 12 9-9M17 6l2 2M15 8l2 2"/>',
         'dinheiro'      => '<rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 9v.01M18 15v.01"/>',
+        'banho'         => '<path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M6 12V5a2 2 0 0 1 3.5-1.3M8 20l-1 2M16 20l1 2"/>',
+        'area'          => '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path d="M9 9h6v6H9z"/>',
+        'seta'          => '<path d="M5 12h14M13 6l6 6-6 6"/>',
         'pets'          => '<circle cx="5.5" cy="10" r="1.8"/><circle cx="9" cy="5.5" r="1.8"/><circle cx="15" cy="5.5" r="1.8"/><circle cx="18.5" cy="10" r="1.8"/><path d="M8 15.5c0-2.2 1.8-4 4-4s4 1.8 4 4c0 1.4 1.2 2.1 1.2 3.3a2.3 2.3 0 0 1-2.4 2.2c-1 0-1.8-.5-2.8-.5s-1.8.5-2.8.5a2.3 2.3 0 0 1-2.4-2.2c0-1.2 1.2-1.9 1.2-3.3z"/>',
         'piscina'       => '<path d="M2 17c2 0 2-1.3 4-1.3s2 1.3 4 1.3 2-1.3 4-1.3 2 1.3 4 1.3 2-1.3 4-1.3M2 21c2 0 2-1.3 4-1.3s2 1.3 4 1.3 2-1.3 4-1.3 2 1.3 4 1.3 2-1.3 4-1.3"/><path d="M8 14V5a2 2 0 0 1 4 0M15 14V5a2 2 0 0 1 4 0M8 8h7M8 11.5h7"/>',
         'churrasqueira' => '<path d="M4 10h16a8 8 0 0 1-16 0z"/><path d="m8 17-2 4M16 17l2 4M12 18v3M9 6.5c0-1 1-1.5 1-2.5M13 6.5c0-1 1-1.5 1-2.5"/>',

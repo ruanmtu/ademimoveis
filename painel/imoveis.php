@@ -52,7 +52,7 @@ require __DIR__ . '/../includes/header.php';
   <?php require __DIR__ . '/_nav.php'; ?>
 
   <?php if (!anunciante_em_dia($u)): ?>
-    <div class="alerta alerta-aviso">Seus anúncios só aparecem no site com a assinatura ativa. <a href="<?= url('painel/assinatura.php') ?>">Ver assinatura →</a></div>
+    <div class="alerta alerta-aviso">Seus anúncios só aparecem no site com a assinatura ativa. <a href="<?= url('painel/assinatura.php') ?>">Ver assinatura</a></div>
   <?php endif; ?>
 
   <?php $pl = plano_do_usuario($u); $nDest = count(array_filter($imoveis, fn ($x) => $x['destaque']));

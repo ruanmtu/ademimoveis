@@ -17,7 +17,7 @@ $naoLidas = $u ? mensagens_nao_lidas((int) $u['id']) : 0;
 <meta property="og:image" content="<?= url('assets/img/logo-completa.png') ?>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Dancing+Script:wght@600;700&family=Figtree:ital,wght@0,400..700;1,400&display=swap">
 <link rel="stylesheet" href="<?= asset('css/style.css') ?>">
 </head>
 <body>

@@ -120,7 +120,7 @@ require __DIR__ . '/includes/header.php';
           <a class="btn btn-bloco" href="<?= url('login.php') ?>" onclick="return true">Entrar para conversar</a>
           <?php $_SESSION['voltar_para'] = $_SERVER['REQUEST_URI'] ?? ''; ?>
         <?php endif; ?>
-        <a class="link-perfil" href="<?= url('anunciante.php?id=' . (int) $anunc['id']) ?>">Ver perfil e outros imóveis →</a>
+        <a class="link-perfil" href="<?= url('anunciante.php?id=' . (int) $anunc['id']) ?>">Ver perfil e outros imóveis</a>
       </div>
     </aside>
   </div>

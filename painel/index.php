@@ -22,7 +22,7 @@ require __DIR__ . '/../includes/header.php';
   <?php if (!$emDia): ?>
     <div class="alerta alerta-aviso">
       Sua assinatura está <strong><?= e(mb_strtolower(status_assinatura_label($u['assinatura_status']))) ?></strong>. Seus imóveis não aparecem para o público.
-      <a href="<?= url('painel/assinatura.php') ?>">Ativar assinatura →</a>
+      <a href="<?= url('painel/assinatura.php') ?>">Ativar assinatura</a>
     </div>
   <?php endif; ?>
 

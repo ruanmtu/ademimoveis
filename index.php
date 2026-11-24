@@ -42,13 +42,15 @@ $heroFoto = is_file(ROOT_PATH . '/assets/img/hero.jpg') ? asset('img/hero.jpg') 
 
 require __DIR__ . '/includes/header.php';
 ?>
-<section class="container hero-wrap">
+<section class="hero-wrap">
   <div class="hero"<?= $heroFoto ? ' style="--hero-foto: url(\'' . e($heroFoto) . '\')"' : '' ?>>
-    <div class="hero-conteudo">
-      <h1>Imóveis à venda e para alugar<br><span>Encontre seu lar na ADemóveis</span></h1>
+    <div class="hero-conteudo container">
       <p class="slogan">Realizando seus sonhos!</p>
+      <h1>Encontre a casa onde a sua história continua</h1>
+      <p class="hero-sub">Casas, apartamentos e terrenos para comprar ou alugar, direto com quem anuncia.</p>
 
       <form class="painel-busca" action="<?= url('imoveis.php') ?>" method="get">
+        <span class="chamine" aria-hidden="true"></span><div class="telhado" aria-hidden="true"></div>
         <div class="abas-finalidade" role="radiogroup" aria-label="O que você procura?">
           <label><input type="radio" name="finalidade" value="venda" checked><span>Comprar</span></label>
           <label><input type="radio" name="finalidade" value="aluguel"><span>Alugar</span></label>
@@ -63,7 +65,7 @@ require __DIR__ . '/includes/header.php';
           <label class="campo">
             <?= icone('casa', 20) ?>
             <select name="tipo" aria-label="Tipo de imóvel">
-              <option value="">Todos os imóveis</option>
+              <option value="">Todos os tipos</option>
               <?php foreach (tipos_imovel() as $k => $v): ?><option value="<?= e($k) ?>"><?= e($v) ?></option><?php endforeach; ?>
             </select>
           </label>
@@ -105,7 +107,7 @@ require __DIR__ . '/includes/header.php';
     </div>
   </div>
 
-  <nav class="atalhos-comodidades" aria-label="Buscar por comodidade">
+  <nav class="atalhos-comodidades container" aria-label="Buscar por comodidade">
     <?php foreach (comodidades() as $k => [$rot, $ic]): ?>
       <a href="<?= url('imoveis.php?comodidades[]=' . urlencode($k)) ?>"><?= icone($ic, 24) ?><span><?= e($rot) ?></span></a>
     <?php endforeach; ?>
@@ -113,7 +115,7 @@ require __DIR__ . '/includes/header.php';
 </section>
 
 <section class="container secao buscas-populares">
-  <h2>Buscas populares</h2>
+  <h2>Comece por aqui</h2>
   <div class="grade-buscas">
     <?php foreach ($buscasPopulares as [$rot, $sub, $ic, $q]): ?>
       <a class="busca-pronta" href="<?= url('imoveis.php?' . http_build_query($q)) ?>">
@@ -127,7 +129,7 @@ require __DIR__ . '/includes/header.php';
 <section class="container secao">
   <div class="secao-titulo">
     <h2>Imóveis recentes</h2>
-    <a href="<?= url('imoveis.php') ?>">Ver todos →</a>
+    <a href="<?= url('imoveis.php') ?>">Ver todos os imóveis</a>
   </div>
   <?php if ($destaques): ?>
     <div class="grade-imoveis">
