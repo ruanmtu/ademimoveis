@@ -1,10 +1,16 @@
 </main>
-<?php /* Dados de contato FICTÍCIOS (provisórios): troque pelos reais antes do lançamento. */ ?>
+<?php /* Telefone, e-mail e endereço são FICTÍCIOS (provisórios): troque pelos reais antes do lançamento.
+         O corretor responsável e o CRECI são reais. */ ?>
 <footer class="rodape">
   <div class="container rodape-grade">
     <div class="rodape-marca">
       <img class="rodape-logo" src="<?= asset('img/logo-completa.webp') ?>" alt="ADemóveis - Corretora de Imóveis" width="150" height="104" loading="lazy">
       <p>Imóveis para comprar e alugar, direto com quem anuncia.</p>
+      <div class="rodape-corretor">
+        <strong>Dawidson Oliveira Anfrisio</strong>
+        <span>Corretor de Imóveis</span>
+        <span class="rodape-creci">CRECI-CE 24199</span>
+      </div>
     </div>
     <nav class="rodape-col" aria-label="Imóveis">
       <h4>Imóveis</h4>
@@ -26,7 +32,7 @@
     </div>
   </div>
   <div class="container rodape-base">
-    <span>&copy; <?= date('Y') ?> ADemóveis. Todos os direitos reservados. CRECI-J 0000 / CNPJ 00.000.000/0001-00</span>
+    <span>&copy; <?= date('Y') ?> ADemóveis. Todos os direitos reservados. Corretor responsável: Dawidson Oliveira Anfrisio, CRECI-CE 24199.</span>
     <span class="rodape-creditos">Desenvolvido por <strong>BV Tecnologias</strong></span>
   </div>
 </footer>

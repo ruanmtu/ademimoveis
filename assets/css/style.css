@@ -714,3 +714,9 @@ main:has(> .cta-anunciante:last-child) + .rodape { margin-top: 0; }
 .auth-confirmacao p { color: var(--texto); }
 .auth-confirmacao-icone { display: inline-grid; place-items: center; width: 72px; height: 72px; border-radius: 22px; background: var(--folha-clara); color: var(--folha); }
 .auth-confirmacao-erro { background: #fdf1db; color: var(--aviso); }
+
+/* Corretor responsável no rodapé */
+.rodape-corretor { display: flex; flex-direction: column; gap: 1px; margin-top: 16px; padding: 12px 14px; border-left: 3px solid var(--ouro); background: rgba(255,255,255,.04); border-radius: 0 10px 10px 0; width: fit-content; }
+.rodape-corretor strong { color: #f3e6d8; font-family: var(--fonte-titulo); font-size: .98rem; letter-spacing: 0; }
+.rodape-corretor span { color: #bba795; font-size: .86rem; }
+.rodape-corretor .rodape-creci { color: var(--ouro); font-weight: 700; letter-spacing: .02em; }
