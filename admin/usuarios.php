@@ -70,6 +70,22 @@ if (is_post()) {
             registrar_evento_admin($id, 'plano_alterado', $novo['nome'], ['por_admin' => $admin['id'], 'de' => $alvo['plano_id'], 'para' => $novo['id']]);
             flash('sucesso', $msg);
             break;
+        case 'creci_verificar':
+        case 'creci_recusar':
+            if (!$alvo['creci']) { flash('erro', 'Este usuário não informou CRECI.'); break; }
+            $ok = $acao === 'creci_verificar';
+            q('UPDATE usuarios SET creci_status = ?, creci_verificado_em = ? WHERE id = ?', [$ok ? 'verificado' : 'recusado', $ok ? agora() : null, $id]);
+            registrar_evento_admin($id, $ok ? 'creci_verificado' : 'creci_recusado', $alvo['creci'] . '/' . $alvo['creci_uf'], ['por_admin' => $admin['id']]);
+            flash('sucesso', $ok ? 'CRECI marcado como verificado. O selo já aparece no perfil.' : 'CRECI marcado como não confirmado. O anunciante verá o aviso em Minha conta.');
+            break;
+        case 'documento':
+            $doc = identificar_documento(post('documento'));
+            if (!$doc) { flash('erro', 'CPF ou CNPJ inválido.'); break; }
+            if (val('SELECT 1 FROM usuarios WHERE documento = ? AND id <> ?', [$doc['numero'], $id])) { flash('erro', 'Este documento já está em outra conta.'); break; }
+            q('UPDATE usuarios SET documento_tipo = ?, documento = ? WHERE id = ?', [$doc['tipo'], $doc['numero'], $id]);
+            registrar_evento_admin($id, 'documento_alterado', $doc['tipo'], ['por_admin' => $admin['id']]);
+            flash('sucesso', strtoupper($doc['tipo']) . ' atualizado.');
+            break;
         case 'remover_cupom':
             q('UPDATE usuarios SET cupom_id = NULL, cupom_cobrancas_restantes = NULL WHERE id = ?', [$id]);
             flash('sucesso', 'Cupom removido do anunciante (o valor no Mercado Pago não foi alterado).');
@@ -120,7 +136,9 @@ if ($id) {
             <dt>Tipo</dt><dd><?= e($x['tipo']) ?></dd>
             <dt>Situação</dt><dd><span class="status status-<?= e($x['status']) ?>"><?= e($x['status']) ?></span></dd>
             <dt>Cidade</dt><dd><?= e(trim(($x['cidade'] ?? '') . ' ' . ($x['estado'] ?? '')) ?: '-') ?></dd>
-            <dt>CRECI</dt><dd><?= e($x['creci'] ?: '-') ?></dd>
+            <dt><?= $x['documento_tipo'] === 'cnpj' ? 'CNPJ' : 'CPF' ?></dt><dd><?= $x['documento'] ? e(formatar_documento($x['documento'])) . ' <span class="status status-ativo">válido</span>' : '-' ?></dd>
+            <dt>CRECI</dt><dd><?php if ($x['creci']): ?><?= e($x['creci']) ?> (<?= e($x['creci_uf']) ?>)
+              <span class="status status-<?= $x['creci_status'] === 'verificado' ? 'ativo' : ($x['creci_status'] === 'recusado' ? 'removido' : 'pausado') ?>"><?= e(creci_status_label($x['creci_status'])) ?></span><?php else: ?>-<?php endif; ?></dd>
             <dt>Cadastro</dt><dd><?= data_br($x['criado_em'], true) ?></dd>
             <dt>Último login</dt><dd><?= data_br($x['ultimo_login'], true) ?></dd>
           </dl>
@@ -134,6 +152,25 @@ if ($id) {
             <button class="btn btn-sm btn-claro" name="acao" value="senha" data-confirmar="Gerar uma nova senha temporária?">Gerar senha temporária</button>
             <button class="btn btn-sm btn-perigo" name="acao" value="excluir" data-confirmar="EXCLUIR definitivamente este usuário, imóveis, fotos e conversas? Não tem como desfazer.">Excluir</button>
           </form>
+          <?php if ($x['creci']): ?>
+            <div class="verificar-creci">
+              <strong>Verificar CRECI-<?= e($x['creci_uf']) ?> <?= e($x['creci']) ?></strong>
+              <p class="dica">Abra a consulta pública do CRECI-<?= e($x['creci_uf']) ?> e confira se o registro está <strong>ativo</strong> e no nome de <strong><?= e($x['nome']) ?></strong>.</p>
+              <form method="post" class="acoes-linha">
+                <?= csrf_field() ?><input type="hidden" name="id" value="<?= $id ?>">
+                <a class="btn btn-sm btn-claro" href="<?= e(link_consulta_creci($x['creci_uf'], $x['creci'])) ?>" target="_blank" rel="noopener">Abrir consulta do CRECI-<?= e($x['creci_uf']) ?></a>
+                <?php if ($x['creci_status'] !== 'verificado'): ?><button class="btn btn-sm" name="acao" value="creci_verificar">Confirmar: registro ativo</button><?php endif; ?>
+                <?php if ($x['creci_status'] !== 'recusado'): ?><button class="btn btn-sm btn-perigo" name="acao" value="creci_recusar" data-confirmar="Marcar este CRECI como não confirmado?">Não confirmado</button><?php endif; ?>
+              </form>
+            </div>
+          <?php endif; ?>
+          <?php if ($x['tipo'] === 'anunciante'): ?>
+            <form method="post" class="acoes-linha">
+              <?= csrf_field() ?><input type="hidden" name="id" value="<?= $id ?>"><input type="hidden" name="acao" value="documento">
+              <input type="text" name="documento" value="<?= e(formatar_documento($x['documento'])) ?>" placeholder="CPF ou CNPJ" maxlength="18" style="max-width:230px">
+              <button class="btn btn-sm btn-claro" data-confirmar="Alterar o CPF/CNPJ deste anunciante?">Corrigir CPF/CNPJ</button>
+            </form>
+          <?php endif; ?>
           <form method="post" class="acoes-linha">
             <?= csrf_field() ?><input type="hidden" name="id" value="<?= $id ?>"><input type="hidden" name="acao" value="tipo">
             <select name="tipo">
@@ -201,12 +238,14 @@ if ($id) {
 $where = ['1=1'];
 $params = [];
 if (($busca = get('q')) !== '') {
-    $where[] = '(nome LIKE ? OR email LIKE ? OR telefone LIKE ?)';
-    array_push($params, "%$busca%", "%$busca%", "%$busca%");
+    $where[] = '(nome LIKE ? OR email LIKE ? OR telefone LIKE ? OR documento LIKE ? OR creci LIKE ?)';
+    $docBusca = limpar_documento($busca) ?: $busca;
+    array_push($params, "%$busca%", "%$busca%", "%$busca%", "%$docBusca%", "%$busca%");
 }
 if (in_array($tipo = get('tipo'), ['cliente', 'anunciante', 'admin'], true)) { $where[] = 'tipo = ?'; $params[] = $tipo; }
 if (in_array($st = get('status'), ['ativo', 'bloqueado'], true)) { $where[] = 'status = ?'; $params[] = $st; }
 if ((int) get('plano') > 0) { $where[] = 'plano_id = ?'; $params[] = (int) get('plano'); }
+if (in_array(get('creci'), ['pendente', 'verificado', 'recusado'], true)) { $where[] = 'creci_status = ?'; $params[] = get('creci'); }
 
 $w = implode(' AND ', $where);
 $total = (int) val("SELECT COUNT(*) FROM usuarios WHERE $w", $params);
@@ -220,9 +259,10 @@ require __DIR__ . '/../includes/header.php';
   <h1>Usuários <small>(<?= $total ?>)</small></h1>
   <?php require __DIR__ . '/_nav.php'; ?>
   <form class="filtro-linha" method="get">
-    <input type="search" name="q" value="<?= e(get('q')) ?>" placeholder="Nome, e-mail ou telefone">
+    <input type="search" name="q" value="<?= e(get('q')) ?>" placeholder="Nome, e-mail, telefone, CPF/CNPJ ou CRECI">
     <select name="tipo"><option value="">Todos os tipos</option><?php foreach (['cliente', 'anunciante', 'admin'] as $t): ?><option <?= get('tipo') === $t ? 'selected' : '' ?>><?= $t ?></option><?php endforeach; ?></select>
     <select name="status"><option value="">Qualquer situação</option><option <?= get('status') === 'ativo' ? 'selected' : '' ?>>ativo</option><option <?= get('status') === 'bloqueado' ? 'selected' : '' ?>>bloqueado</option></select>
+    <select name="creci"><option value="">CRECI: todos</option><?php foreach (['pendente' => 'Aguardando verificação', 'verificado' => 'Verificado', 'recusado' => 'Não confirmado'] as $k => $v): ?><option value="<?= $k ?>" <?= get('creci') === $k ? 'selected' : '' ?>><?= $v ?></option><?php endforeach; ?></select>
     <?php if ((int) get('plano')): ?><input type="hidden" name="plano" value="<?= (int) get('plano') ?>"><?php endif; ?>
     <button class="btn btn-sm">Filtrar</button>
   </form>

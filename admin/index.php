@@ -10,6 +10,7 @@ $n = [
     'imoveis'      => (int) val('SELECT COUNT(*) FROM imoveis i JOIN usuarios u ON u.id = i.anunciante_id WHERE ' . sql_imovel_visivel()),
     'imoveis_tot'  => (int) val("SELECT COUNT(*) FROM imoveis WHERE status <> 'removido'"),
     'conversas'    => (int) val('SELECT COUNT(*) FROM conversas'),
+    'creci_pend'   => (int) val("SELECT COUNT(*) FROM usuarios WHERE creci_status = 'pendente'"),
     'mensagens_7d' => (int) val('SELECT COUNT(*) FROM mensagens WHERE criado_em >= ?', [date('Y-m-d H:i:s', strtotime('-7 days'))]),
     'receita_mes'  => (float) val('SELECT COALESCE(SUM(p.preco), 0) FROM usuarios u JOIN planos p ON p.id = u.plano_id
                                    WHERE ' . sql_anunciante_em_dia() . " AND u.mp_preapproval_id IS NOT NULL AND u.assinatura_status = 'ativa'"),
@@ -31,6 +32,9 @@ require __DIR__ . '/../includes/header.php';
     <div class="alerta alerta-aviso">Mercado Pago não configurado. Anunciantes só podem ser ativados manualmente em <a href="<?= url('admin/usuarios.php?tipo=anunciante') ?>">Usuários</a>.</div>
   <?php endif; ?>
 
+  <?php if ($n['creci_pend']): ?>
+    <div class="alerta alerta-aviso"><?= $n['creci_pend'] ?> CRECI<?= $n['creci_pend'] > 1 ? 's' : '' ?> aguardando verificação. <a href="<?= url('admin/usuarios.php?creci=pendente') ?>">Verificar agora</a></div>
+  <?php endif; ?>
   <div class="cards-resumo">
     <div class="caixa"><span>Clientes</span><strong><?= $n['clientes'] ?></strong></div>
     <div class="caixa"><span>Anunciantes</span><strong><?= $n['anunciantes'] ?></strong><small><?= $n['em_dia'] ?> em dia · <?= $n['pendentes'] ?> aguardando pagamento</small></div>

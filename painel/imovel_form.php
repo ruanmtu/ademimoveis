@@ -8,7 +8,11 @@ if ($id) {
     $im = one("SELECT * FROM imoveis WHERE id = ? AND anunciante_id = ? AND status <> 'removido'", [$id, $u['id']]);
     if (!$im) { flash('erro', 'Imóvel não encontrado.'); redirect('painel/imoveis.php'); }
 } else {
-    // novo imóvel: exige assinatura em dia e respeita o limite do plano
+    // novo imóvel: exige CPF/CNPJ informado, assinatura em dia e respeita o limite do plano
+    if (!$u['documento']) {
+        flash('aviso', 'Antes de anunciar, informe seu CPF ou CNPJ em Minha conta.');
+        redirect('conta.php');
+    }
     if (!anunciante_em_dia($u)) {
         flash('aviso', 'Ative sua assinatura para cadastrar imóveis.');
         redirect('painel/assinatura.php');

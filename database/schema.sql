@@ -60,7 +60,12 @@ CREATE TABLE IF NOT EXISTS usuarios (
   senha_hash          VARCHAR(255) NOT NULL,
   telefone            VARCHAR(30)  NULL,
   whatsapp            VARCHAR(30)  NULL,
-  creci               VARCHAR(30)  NULL,
+  documento_tipo      ENUM('cpf','cnpj') NULL,
+  documento           VARCHAR(14)  NULL,     -- só dígitos/letras, sem pontuação
+  creci               VARCHAR(30)  NULL,     -- ex.: 12345-F
+  creci_uf            CHAR(2)      NULL,
+  creci_status        ENUM('nao_informado','pendente','verificado','recusado') NOT NULL DEFAULT 'nao_informado',
+  creci_verificado_em DATETIME     NULL,
   cidade              VARCHAR(120) NULL,
   estado              CHAR(2)      NULL,
   bio                 TEXT         NULL,
@@ -77,6 +82,8 @@ CREATE TABLE IF NOT EXISTS usuarios (
   ultimo_login        DATETIME     NULL,
   criado_em           DATETIME     NOT NULL,
   UNIQUE KEY uk_usuarios_email (email),
+  UNIQUE KEY uk_usuarios_documento (documento),
+  KEY idx_usuarios_creci (creci_status),
   KEY idx_usuarios_tipo (tipo),
   KEY idx_usuarios_mp (mp_preapproval_id),
   CONSTRAINT fk_usuarios_plano FOREIGN KEY (plano_id) REFERENCES planos(id) ON DELETE SET NULL,

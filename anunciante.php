@@ -58,7 +58,8 @@ require __DIR__ . '/includes/header.php';
       <h1><?= e($a['nome']) ?></h1>
       <p class="estrelas"><?= $aval['total'] ? estrelas($aval['media']) . ' <strong>' . number_format($aval['media'], 1, ',', '') . '</strong> · ' . $aval['total'] . ' avaliação' . ($aval['total'] > 1 ? 'ões' : '') : 'Ainda sem avaliações' ?></p>
       <ul class="perfil-dados">
-        <?php if ($a['creci']): ?><li>CRECI <?= e($a['creci']) ?></li><?php endif; ?>
+        <?php if ($a['creci'] && $a['creci_status'] === 'verificado'): ?><li class="selo-creci"><?= icone('verificado', 16) ?>CRECI-<?= e($a['creci_uf']) ?> <?= e($a['creci']) ?> verificado</li>
+        <?php elseif ($a['creci']): ?><li>CRECI-<?= e($a['creci_uf']) ?> <?= e($a['creci']) ?></li><?php endif; ?>
         <?php if ($a['cidade']): ?><li><?= e($a['cidade']) ?><?= $a['estado'] ? ' - ' . e($a['estado']) : '' ?></li><?php endif; ?>
         <li>Na ADemóveis desde <?= date('m/Y', strtotime($a['criado_em'])) ?></li>
         <li><?= count($imoveis) ?> imóve<?= count($imoveis) === 1 ? 'l' : 'is' ?> anunciado<?= count($imoveis) === 1 ? '' : 's' ?></li>

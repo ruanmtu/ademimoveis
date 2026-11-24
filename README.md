@@ -54,6 +54,13 @@ Se você já tinha importado o `schema.sql` de uma versão anterior, importe no 
 
 1. `database/atualizacao_01_comodidades.sql`
 2. `database/atualizacao_02_cupons_planos.sql`
+3. `database/atualizacao_03_documentos.sql`
+
+## CPF, CNPJ e CRECI
+
+- **Anunciantes** informam CPF ou CNPJ no cadastro. O site confere os dígitos verificadores, inclusive do **CNPJ alfanumérico** emitido desde julho de 2026, e não aceita o mesmo documento em duas contas. O número não aparece no site.
+- O **CRECI** é opcional. O site confere o formato e o estado: corretor pessoa física termina em F, imobiliária em J. Como não existe consulta nacional automática, a confirmação é feita em *Admin → Usuários → anunciante → Verificar CRECI*, na consulta pública do CRECI do estado. Depois de confirmado, o perfil ganha o selo "CRECI verificado".
+- O dígito verificador só garante que o número é bem formado, não que a pessoa ou empresa existe ou está regular.
 
 ## Estrutura
 

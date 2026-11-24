@@ -17,14 +17,46 @@ if (is_post()) {
         } else {
             $foto = $u['foto'];
             try {
+                // Documento: o anunciante informa uma vez; depois só a administração altera
+                $docTipo = $u['documento_tipo'];
+                $docNum = $u['documento'];
+                if ($anunc && !$u['documento'] && post('documento') !== '') {
+                    $doc = identificar_documento(post('documento'));
+                    if (!$doc) throw new RuntimeException('CPF ou CNPJ inválido. Confira os números.');
+                    if (val('SELECT 1 FROM usuarios WHERE documento = ? AND id <> ?', [$doc['numero'], $u['id']])) {
+                        throw new RuntimeException('Este ' . strtoupper($doc['tipo']) . ' já está em outra conta. Fale com o suporte.');
+                    }
+                    [$docTipo, $docNum] = [$doc['tipo'], $doc['numero']];
+                }
+                // CRECI: mudou número ou estado -> volta para "aguardando verificação"
+                $creci = $u['creci']; $creciUf = $u['creci_uf']; $creciSt = $u['creci_status']; $creciEm = $u['creci_verificado_em'];
+                if ($anunc) {
+                    $novoCreci = post('creci'); $novaUf = post('creci_uf');
+                    if ($novoCreci === '') {
+                        [$creci, $creciUf, $creciSt, $creciEm] = [null, null, 'nao_informado', null];
+                    } else {
+                        if (!in_array($novaUf, estados(), true)) throw new RuntimeException('Escolha o estado do CRECI.');
+                        $norm = normalizar_creci($novoCreci, $docTipo ?? 'cpf');
+                        if (!$norm) throw new RuntimeException('CRECI inválido. Pessoa física termina em F (12345-F) e imobiliária em J (1234-J).');
+                        if (val('SELECT 1 FROM usuarios WHERE creci = ? AND creci_uf = ? AND id <> ?', [$norm, $novaUf, $u['id']])) {
+                            throw new RuntimeException('Este CRECI já está em outra conta. Fale com o suporte.');
+                        }
+                        if ($norm !== $u['creci'] || $novaUf !== $u['creci_uf']) {
+                            [$creci, $creciUf, $creciSt, $creciEm] = [$norm, $novaUf, 'pendente', null];
+                        }
+                    }
+                }
+                // foto só é trocada depois que todo o resto foi validado
                 if (!empty($_FILES['foto']['name'])) {
                     $foto = salvar_imagem($_FILES['foto'], 'perfis', 500);
                     apagar_upload($u['foto']);
                 }
+                q('UPDATE usuarios SET documento_tipo = ?, documento = ?, creci_uf = ?, creci_status = ?, creci_verificado_em = ? WHERE id = ?',
+                  [$docTipo, $docNum, $creciUf, $creciSt, $creciEm, $u['id']]);
                 q('UPDATE usuarios SET nome = ?, telefone = ?, whatsapp = ?, creci = ?, cidade = ?, estado = ?, bio = ?, foto = ? WHERE id = ?', [
                     $nome, post('telefone') ?: null,
                     $anunc ? (post('whatsapp') ?: null) : $u['whatsapp'],
-                    $anunc ? (post('creci') ?: null) : $u['creci'],
+                    $creci,
                     post('cidade') ?: null, $estado ?: null,
                     $anunc ? (mb_substr(post('bio'), 0, 2000) ?: null) : $u['bio'],
                     $foto, $u['id'],
@@ -53,6 +85,7 @@ if (is_post()) {
 }
 
 $titulo = 'Minha conta';
+$scripts = ['js/documentos.js'];
 require __DIR__ . '/includes/header.php';
 ?>
 <div class="container secao conta">
@@ -74,7 +107,31 @@ require __DIR__ . '/includes/header.php';
         <label>Telefone <input type="tel" name="telefone" value="<?= e($u['telefone']) ?>" maxlength="30"></label>
         <?php if ($anunc): ?><label>WhatsApp (aparece no perfil) <input type="tel" name="whatsapp" value="<?= e($u['whatsapp']) ?>" maxlength="30"></label><?php endif; ?>
       </div>
-      <?php if ($anunc): ?><label>CRECI <input type="text" name="creci" value="<?= e($u['creci']) ?>" maxlength="30"></label><?php endif; ?>
+      <?php if ($anunc): ?>
+        <label>CPF ou CNPJ
+          <?php if ($u['documento']): ?>
+            <input type="text" value="<?= e(formatar_documento($u['documento'])) ?>" disabled>
+            <small class="dica">Para alterar, fale com o suporte.</small>
+          <?php else: ?>
+            <input type="text" name="documento" maxlength="18" placeholder="000.000.000-00 ou 00.000.000/0000-00" data-documento>
+            <small class="dica">Obrigatório para anunciar. Não aparece no site.</small>
+          <?php endif; ?>
+        </label>
+        <div class="linha-creci">
+          <label>CRECI <small class="dica">(opcional)</small>
+            <input type="text" name="creci" value="<?= e($u['creci']) ?>" maxlength="20" placeholder="12345-F" data-creci>
+          </label>
+          <label>Estado
+            <select name="creci_uf"><option value="">UF</option><?php foreach (estados() as $uf): ?><option <?= $u['creci_uf'] === $uf ? 'selected' : '' ?>><?= $uf ?></option><?php endforeach; ?></select>
+          </label>
+        </div>
+        <?php if ($u['creci']): ?>
+          <p class="dica">Situação do CRECI:
+            <?php if ($u['creci_status'] === 'verificado'): ?><span class="selo-creci"><?= icone('verificado', 15) ?>Verificado</span>
+            <?php else: ?><strong><?= e(creci_status_label($u['creci_status'])) ?></strong><?= $u['creci_status'] === 'recusado' ? '. Confira o número e o estado.' : '. Nossa equipe confere no site do CRECI do seu estado.' ?><?php endif; ?>
+          </p>
+        <?php endif; ?>
+      <?php endif; ?>
       <div class="linha-2">
         <label>Cidade <input type="text" name="cidade" value="<?= e($u['cidade']) ?>" maxlength="120"></label>
         <label>Estado <select name="estado"><option value="">--</option><?php foreach (estados() as $uf): ?><option <?= $u['estado'] === $uf ? 'selected' : '' ?>><?= $uf ?></option><?php endforeach; ?></select></label>

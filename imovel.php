@@ -20,7 +20,7 @@ if (!$dono) {
 }
 
 $fotos = all('SELECT * FROM imovel_fotos WHERE imovel_id = ? ORDER BY ordem, id', [$id]);
-$anunc = one('SELECT id, nome, foto, creci, cidade, estado, whatsapp, criado_em FROM usuarios WHERE id = ?', [$im['anunciante_id']]);
+$anunc = one('SELECT id, nome, foto, creci, creci_uf, creci_status, cidade, estado, whatsapp, criado_em FROM usuarios WHERE id = ?', [$im['anunciante_id']]);
 $aval = media_avaliacoes((int) $anunc['id']);
 $similares = all("SELECT i.*, (SELECT arquivo FROM imovel_fotos fo WHERE fo.imovel_id = i.id ORDER BY ordem, id LIMIT 1) AS capa
                   FROM imoveis i JOIN usuarios u ON u.id = i.anunciante_id
@@ -98,7 +98,8 @@ require __DIR__ . '/includes/header.php';
           <img class="avatar" src="<?= e(upload_url($anunc['foto'], 'assets/img/avatar.svg')) ?>" alt="">
           <div>
             <strong><?= e($anunc['nome']) ?></strong>
-            <?php if ($anunc['creci']): ?><small>CRECI <?= e($anunc['creci']) ?></small><?php endif; ?>
+            <?php if ($anunc['creci'] && $anunc['creci_status'] === 'verificado'): ?><small class="selo-creci"><?= icone('verificado', 15) ?>CRECI <?= e($anunc['creci']) ?> verificado</small>
+            <?php elseif ($anunc['creci']): ?><small>CRECI-<?= e($anunc['creci_uf']) ?> <?= e($anunc['creci']) ?></small><?php endif; ?>
             <small class="estrelas"><?= $aval['total'] ? estrelas($aval['media']) . ' ' . number_format($aval['media'], 1, ',', '') . ' (' . $aval['total'] . ')' : 'Sem avaliações' ?></small>
           </div>
         </a>
