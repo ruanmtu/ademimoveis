@@ -32,6 +32,12 @@ define('MP_WEBHOOK_SECRET', '');
 // Dias extras de tolerância depois do vencimento antes de tirar os anúncios do ar
 define('ASSINATURA_TOLERANCIA_DIAS', 3);
 
+// ---------------- E-mail (recuperação de senha) ----------------
+// Remetente dos e-mails. Na Hostinger, use um e-mail do seu domínio criado no hPanel
+// (ex.: nao-responda@ademoveis.com.br). Vazio = nao-responda@<domínio do site>.
+define('MAIL_FROM', '');
+define('MAIL_FROM_NOME', 'ADemóveis');
+
 // ---------------- Uploads ----------------
 define('UPLOAD_MAX_MB', 8);          // tamanho máximo por foto
 define('FOTOS_POR_IMOVEL', 20);      // limite de fotos por imóvel

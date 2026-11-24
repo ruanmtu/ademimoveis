@@ -65,6 +65,7 @@ require __DIR__ . '/includes/header.php';
           <button type="button" class="btn-olho" data-mostrar-senha="senha" aria-label="Mostrar senha"><?= icone('olho', 20) ?></button>
         </div>
 
+        <div class="auth-esqueci"><a href="<?= url('esqueci-senha.php') ?>">Esqueceu a senha?</a></div>
         <button class="btn btn-bloco btn-auth" type="submit" data-carregando="Entrando...">Entrar</button>
 
         <div class="auth-separador"><span>ainda não tem conta?</span></div>

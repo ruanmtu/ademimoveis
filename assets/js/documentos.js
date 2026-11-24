@@ -41,26 +41,35 @@
   const creci = document.querySelector('[data-creci]');
   let tipoDoc = 'cpf';
 
+  const rotuloDoc = document.querySelector('[data-rotulo-documento]');
+  // No cadastro, cliente usa só CPF; anunciante pode usar CPF ou CNPJ. Fora do cadastro, aceita os dois.
+  const ehAnunciante = () => {
+    const marcado = document.querySelector('[name=tipo]:checked');
+    return marcado ? marcado.value === 'anunciante' : true;
+  };
+
   const avaliar = (final) => {
     if (!doc) return;
+    const anunc = ehAnunciante();
+    if (rotuloDoc) rotuloDoc.textContent = anunc ? 'CPF ou CNPJ' : 'CPF';
+    doc.placeholder = anunc ? '000.000.000-00 ou 00.000.000/0000-00' : '000.000.000-00';
     const c = limpar(doc.value);
     let msg = '', cls = '';
     tipoDoc = c.length > 11 || /[A-Z]/.test(c) ? 'cnpj' : 'cpf';
     if (c.length === 11 && tipoDoc === 'cpf') {
       [msg, cls] = cpfValido(c) ? ['CPF válido', 'ok'] : ['CPF inválido', 'erro'];
     } else if (c.length === 14) {
-      [msg, cls] = cnpjValido(c) ? ['CNPJ válido', 'ok'] : ['CNPJ inválido', 'erro'];
+      [msg, cls] = !anunc ? ['Use o CPF', 'erro'] : cnpjValido(c) ? ['CNPJ válido', 'ok'] : ['CNPJ inválido', 'erro'];
     } else if (final && c.length) {
       [msg, cls] = ['Número incompleto', 'erro'];
     }
     status.textContent = msg;
     status.className = 'campo-status ' + cls;
     doc.setAttribute('aria-invalid', cls === 'erro' ? 'true' : 'false');
-    if (rotuloNome) rotuloNome.textContent = tipoDoc === 'cnpj' ? 'Razão social ou nome da imobiliária' : 'Nome completo';
-    if (ajudaCreci) ajudaCreci.textContent = tipoDoc === 'cnpj'
-      ? 'Imobiliária: use o registro de pessoa jurídica, que termina em J (ex.: 1234-J).'
-      : 'Corretor: use o registro de pessoa física, que termina em F (ex.: 12345-F).';
-    if (creci) creci.placeholder = tipoDoc === 'cnpj' ? '1234-J' : '12345-F';
+    if (rotuloNome) rotuloNome.textContent = anunc && tipoDoc === 'cnpj' ? 'Razão social ou nome da imobiliária' : 'Nome completo';
+    if (ajudaCreci) ajudaCreci.textContent = anunc && tipoDoc === 'cnpj'
+      ? 'Digite como está no registro da imobiliária. Se tiver letra, use J (ex.: 1234-J).'
+      : 'Digite como aparece na sua carteira do CRECI.';
   };
 
   if (doc) {
@@ -71,13 +80,20 @@
       avaliar(false);
     });
     doc.addEventListener('blur', () => avaliar(true));
+    document.querySelectorAll('[name=tipo]').forEach((r) => r.addEventListener('change', () => avaliar(!!doc.value)));
+    avaliar(false);
     if (doc.value) { doc.value = formatar(limpar(doc.value)); avaliar(true); }
   }
 
+  // CRECI: se a pessoa digitar "CRECI-CE 24199", preenche o estado e deixa só o número
   if (creci) {
+    const ufSel = document.querySelector('#creci_uf, [name=creci_uf]');
     creci.addEventListener('blur', () => {
-      const m = creci.value.toUpperCase().replace(/^\s*CRECI[\s\-\/]*[A-Z]{0,2}[\s\-:]*/, '').replace(/[.\s]/g, '').match(/^(\d{1,7})-?([FJ])?$/);
-      if (m) creci.value = m[1].replace(/^0+/, '') + '-' + (tipoDoc === 'cnpj' ? 'J' : 'F');
+      const v = creci.value.toUpperCase().trim();
+      const m = v.match(/^CRECI\s*[-\/]?\s*([A-Z]{2})?\b[\s\-:]*(.*)$/);
+      if (!m) return;
+      if (m[1] && ufSel && !ufSel.value && [...ufSel.options].some((o) => o.value === m[1])) ufSel.value = m[1];
+      creci.value = m[2].replace(/[.\s]/g, '');
     });
   }
 })();

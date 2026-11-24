@@ -77,19 +77,33 @@ function mascarar_documento(?string $d): string
 }
 
 /**
- * Normaliza o CRECI. Aceita "12345", "12345-F", "CRECI 12.345-J" etc.
- * O sufixo segue o tipo do anunciante: F para pessoa física (CPF), J para jurídica (CNPJ).
- * Retorna "12345-F" ou null se o formato for inválido.
+ * Normaliza o CRECI como aparece na carteira do corretor.
+ * Aceita "24199", "CRECI-CE 24199", "CRECI 12.345-F", "1234-J" etc.
+ * A letra F (pessoa física) ou J (jurídica) só é mantida se a pessoa digitou;
+ * se digitou, precisa combinar com o tipo de documento (F = CPF, J = CNPJ).
+ * Retorna ['numero' => '24199', 'uf' => 'CE' ou null] ou null se o formato for inválido.
  */
+function ler_creci(string $creci, string $tipoDoc): ?array
+{
+    $c = strtoupper(trim($creci));
+    $uf = null;
+    if (preg_match('/^CRECI\s*[-\/]?\s*([A-Z]{2})?\b[\s\-:]*/', $c, $m)) {
+        if (!empty($m[1]) && in_array($m[1], estados(), true)) $uf = $m[1];
+        $c = substr($c, strlen($m[0]));
+    }
+    $c = str_replace([' ', '.'], '', $c);
+    if (!preg_match('/^(\d{1,7})(?:-?([FJ]))?$/', $c, $m)) return null;
+    $num = ltrim($m[1], '0');
+    if ($num === '') return null;
+    $letra = $m[2] ?? '';
+    if ($letra !== '' && $letra !== ($tipoDoc === 'cnpj' ? 'J' : 'F')) return null;
+    return ['numero' => $num . ($letra ? '-' . $letra : ''), 'uf' => $uf];
+}
+
+/** Atalho: só o número normalizado (ou null). */
 function normalizar_creci(string $creci, string $tipoDoc): ?string
 {
-    $c = strtoupper(preg_replace('/^\s*CRECI[\s\-\/]*[A-Z]{0,2}[\s\-:]*/i', '', trim($creci)));
-    if (!preg_match('/^(\d{1,3}(?:\.?\d{3})?|\d{1,7})\s*-?\s*([FJ])?$/', $c, $m)) return null;
-    $num = ltrim(str_replace('.', '', $m[1]), '0');
-    if ($num === '' || strlen($num) > 7) return null;
-    $sufixoEsperado = $tipoDoc === 'cnpj' ? 'J' : 'F';
-    if (!empty($m[2]) && $m[2] !== $sufixoEsperado) return null;
-    return $num . '-' . $sufixoEsperado;
+    return ler_creci($creci, $tipoDoc)['numero'] ?? null;
 }
 
 function creci_status_label(string $s): string

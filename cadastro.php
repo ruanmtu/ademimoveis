@@ -25,23 +25,29 @@ if (is_post()) {
     if ($d['estado'] !== '' && !in_array($d['estado'], estados(), true)) $erros['estado'] = 'Estado inválido.';
     if (empty($_POST['termos'])) $erros['termos'] = 'Para criar a conta, aceite os termos de uso.';
 
-    $doc = null;
     $creci = null;
+    // Documento: clientes informam CPF; anunciantes, CPF ou CNPJ
+    $doc = identificar_documento($d['documento']);
+    if ($d['documento'] === '') {
+        $erros['documento'] = $anunc ? 'Informe o CPF ou o CNPJ.' : 'Informe seu CPF.';
+    } elseif (!$doc) {
+        $erros['documento'] = $anunc ? 'CPF ou CNPJ inválido. Confira os números.' : 'CPF inválido. Confira os números.';
+    } elseif (!$anunc && $doc['tipo'] !== 'cpf') {
+        $erros['documento'] = 'Para conta de cliente, use o CPF. Empresas podem criar conta de anunciante.';
+    } elseif (val('SELECT 1 FROM usuarios WHERE documento = ?', [$doc['numero']])) {
+        $erros['documento'] = 'Já existe uma conta com este ' . strtoupper($doc['tipo']) . '. Use a opção Entrar ou Esqueceu a senha.';
+    }
     if ($anunc) {
         if (mb_strlen(preg_replace('/\D/', '', $d['telefone'])) < 10) $erros['telefone'] = 'Informe um telefone com DDD.';
-        $doc = identificar_documento($d['documento']);
-        if (!$doc) {
-            $erros['documento'] = 'CPF ou CNPJ inválido. Confira os números.';
-        } elseif (val('SELECT 1 FROM usuarios WHERE documento = ?', [$doc['numero']])) {
-            $erros['documento'] = 'Já existe uma conta com este ' . strtoupper($doc['tipo']) . '. Use a opção Entrar.';
-        }
         if ($d['creci'] !== '') {
+            $lido = ler_creci($d['creci'], $doc['tipo'] ?? 'cpf');
+            if ($lido && $lido['uf'] && $d['creci_uf'] === '') $d['creci_uf'] = $lido['uf'];
             if (!in_array($d['creci_uf'], estados(), true)) $erros['creci_uf'] = 'Escolha o estado do CRECI.';
-            $creci = normalizar_creci($d['creci'], $doc['tipo'] ?? 'cpf');
+            $creci = $lido['numero'] ?? null;
             if (!$creci) {
                 $erros['creci'] = ($doc['tipo'] ?? '') === 'cnpj'
-                    ? 'CRECI inválido. Imobiliárias usam o registro de pessoa jurídica, como 1234-J.'
-                    : 'CRECI inválido. Corretores usam o registro de pessoa física, como 12345-F.';
+                    ? 'CRECI inválido. Digite como está no registro da imobiliária, por exemplo 1234 ou 1234-J.'
+                    : 'CRECI inválido. Digite como está na sua carteira, por exemplo CRECI-CE 24199.';
             } elseif (!isset($erros['creci_uf']) && val('SELECT 1 FROM usuarios WHERE creci = ? AND creci_uf = ?', [$creci, $d['creci_uf']])) {
                 $erros['creci'] = 'Este CRECI já está em outra conta. Se for seu, fale com o suporte.';
             }
@@ -87,7 +93,7 @@ $ladoTexto = 'Crie sua conta em menos de um minuto.';
 $ladoItens = [
     ['busca', 'Busque do seu jeito', 'Filtros por bairro, quartos, preço e comodidades.'],
     ['chave', 'Fale direto com quem anuncia', 'Chat dentro do site, sem expor seu telefone.'],
-    ['verificado', 'Anunciantes conferidos', 'CPF ou CNPJ validado e CRECI verificado pela equipe.'],
+    ['verificado', 'Contas conferidas', 'CPF validado em todas as contas e CRECI verificado pela equipe.'],
 ];
 require __DIR__ . '/includes/header.php';
 ?>
@@ -115,12 +121,12 @@ require __DIR__ . '/includes/header.php';
         </fieldset>
         <?= erro_campo($erros, 'tipo') ?>
 
-        <div class="so-anunciante" data-so-anunciante>
-          <label for="documento">CPF ou CNPJ</label>
+        <div>
+          <label for="documento" data-rotulo-documento>CPF</label>
           <div class="campo-icone">
             <?= icone('documento', 20) ?>
             <input type="text" id="documento" name="documento" value="<?= e($d['documento']) ?>" maxlength="18" autocomplete="off"
-                   placeholder="000.000.000-00 ou 00.000.000/0000-00" data-documento<?= aria_erro($erros, 'documento') ?>>
+                   placeholder="000.000.000-00" data-documento<?= aria_erro($erros, 'documento') ?>>
             <span class="campo-status" data-documento-status aria-live="polite"></span>
           </div>
           <?= erro_campo($erros, 'documento') ?>
@@ -161,7 +167,7 @@ require __DIR__ . '/includes/header.php';
             <div class="linha-creci">
               <div>
                 <label for="creci">Número do registro</label>
-                <input type="text" id="creci" name="creci" value="<?= e($d['creci']) ?>" maxlength="20" placeholder="12345-F" data-creci<?= aria_erro($erros, 'creci') ?>>
+                <input type="text" id="creci" name="creci" value="<?= e($d['creci']) ?>" maxlength="20" placeholder="Ex.: CRECI-CE 24199" data-creci<?= aria_erro($erros, 'creci') ?>>
               </div>
               <div>
                 <label for="creci_uf">Estado</label>
@@ -171,7 +177,7 @@ require __DIR__ . '/includes/header.php';
                 </select>
               </div>
             </div>
-            <p class="campo-ajuda" data-creci-ajuda>Pessoa física termina em F; imobiliária (CNPJ) termina em J.</p>
+            <p class="campo-ajuda" data-creci-ajuda>Digite como aparece na sua carteira do CRECI.</p>
             <?= erro_campo($erros, 'creci') ?><?= erro_campo($erros, 'creci_uf') ?>
           </div>
 
@@ -216,7 +222,7 @@ require __DIR__ . '/includes/header.php';
         <?= erro_campo($erros, 'termos') ?>
 
         <button class="btn btn-bloco btn-auth" type="submit" data-carregando="Criando conta..." data-texto-anunciante="Criar conta e escolher plano">Criar conta</button>
-        <p class="auth-seguro"><?= icone('cadeado', 16) ?>Seu CPF ou CNPJ não aparece no site; ele serve só para conferir quem anuncia.</p>
+        <p class="auth-seguro"><?= icone('cadeado', 16) ?>Seu CPF ou CNPJ não aparece no site; ele serve só para garantir que cada conta é de uma pessoa real.</p>
       </form>
     </section>
   </div>

@@ -20,9 +20,10 @@ if (is_post()) {
                 // Documento: o anunciante informa uma vez; depois só a administração altera
                 $docTipo = $u['documento_tipo'];
                 $docNum = $u['documento'];
-                if ($anunc && !$u['documento'] && post('documento') !== '') {
+                if ($u['tipo'] !== 'admin' && !$u['documento'] && post('documento') !== '') {
                     $doc = identificar_documento(post('documento'));
-                    if (!$doc) throw new RuntimeException('CPF ou CNPJ inválido. Confira os números.');
+                    if (!$doc) throw new RuntimeException($anunc ? 'CPF ou CNPJ inválido. Confira os números.' : 'CPF inválido. Confira os números.');
+                    if (!$anunc && $doc['tipo'] !== 'cpf') throw new RuntimeException('Para conta de cliente, use o CPF.');
                     if (val('SELECT 1 FROM usuarios WHERE documento = ? AND id <> ?', [$doc['numero'], $u['id']])) {
                         throw new RuntimeException('Este ' . strtoupper($doc['tipo']) . ' já está em outra conta. Fale com o suporte.');
                     }
@@ -35,9 +36,11 @@ if (is_post()) {
                     if ($novoCreci === '') {
                         [$creci, $creciUf, $creciSt, $creciEm] = [null, null, 'nao_informado', null];
                     } else {
+                        $lido = ler_creci($novoCreci, $docTipo ?? 'cpf');
+                        if ($lido && $lido['uf'] && $novaUf === '') $novaUf = $lido['uf'];
                         if (!in_array($novaUf, estados(), true)) throw new RuntimeException('Escolha o estado do CRECI.');
-                        $norm = normalizar_creci($novoCreci, $docTipo ?? 'cpf');
-                        if (!$norm) throw new RuntimeException('CRECI inválido. Pessoa física termina em F (12345-F) e imobiliária em J (1234-J).');
+                        $norm = $lido['numero'] ?? null;
+                        if (!$norm) throw new RuntimeException('CRECI inválido. Digite como está na sua carteira, por exemplo CRECI-CE 24199.');
                         if (val('SELECT 1 FROM usuarios WHERE creci = ? AND creci_uf = ? AND id <> ?', [$norm, $novaUf, $u['id']])) {
                             throw new RuntimeException('Este CRECI já está em outra conta. Fale com o suporte.');
                         }
@@ -107,6 +110,16 @@ require __DIR__ . '/includes/header.php';
         <label>Telefone <input type="tel" name="telefone" value="<?= e($u['telefone']) ?>" maxlength="30"></label>
         <?php if ($anunc): ?><label>WhatsApp (aparece no perfil) <input type="tel" name="whatsapp" value="<?= e($u['whatsapp']) ?>" maxlength="30"></label><?php endif; ?>
       </div>
+      <?php if ($u['tipo'] === 'cliente'): ?>
+        <label>CPF
+          <?php if ($u['documento']): ?>
+            <input type="text" value="<?= e(mascarar_documento($u['documento'])) ?>" disabled>
+            <small class="dica">Para alterar, fale com o suporte.</small>
+          <?php else: ?>
+            <input type="text" name="documento" maxlength="14" placeholder="000.000.000-00" data-documento>
+          <?php endif; ?>
+        </label>
+      <?php endif; ?>
       <?php if ($anunc): ?>
         <label>CPF ou CNPJ
           <?php if ($u['documento']): ?>
@@ -119,7 +132,7 @@ require __DIR__ . '/includes/header.php';
         </label>
         <div class="linha-creci">
           <label>CRECI <small class="dica">(opcional)</small>
-            <input type="text" name="creci" value="<?= e($u['creci']) ?>" maxlength="20" placeholder="12345-F" data-creci>
+            <input type="text" name="creci" value="<?= e($u['creci']) ?>" maxlength="20" placeholder="Ex.: CRECI-CE 24199" data-creci>
           </label>
           <label>Estado
             <select name="creci_uf"><option value="">UF</option><?php foreach (estados() as $uf): ?><option <?= $u['creci_uf'] === $uf ? 'selected' : '' ?>><?= $uf ?></option><?php endforeach; ?></select>

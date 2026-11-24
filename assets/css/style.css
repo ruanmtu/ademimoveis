@@ -703,3 +703,14 @@ main:has(> .cta-anunciante:last-child) + .rodape { margin-top: 0; }
 .auth-form .campo-erro { margin: -12px 0 16px; }
 .auth-seguro { display: block; }
 .auth-seguro .icone { display: inline-block; vertical-align: -3px; margin-right: 6px; }
+
+/* Recuperar senha */
+.auth-esqueci { text-align: right; margin: -8px 0 6px; }
+.auth-esqueci a, .link-secundario { font-size: .92rem; font-weight: 600; text-decoration: none; }
+.auth-esqueci a:hover, .link-secundario:hover { text-decoration: underline; }
+.link-secundario { display: block; text-align: center; margin-top: 18px; }
+.auth-confirmacao { width: 100%; max-width: 440px; margin: 0 auto; text-align: center; }
+.auth-confirmacao h1 { margin: 18px 0 10px; }
+.auth-confirmacao p { color: var(--texto); }
+.auth-confirmacao-icone { display: inline-grid; place-items: center; width: 72px; height: 72px; border-radius: 22px; background: var(--folha-clara); color: var(--folha); }
+.auth-confirmacao-erro { background: #fdf1db; color: var(--aviso); }

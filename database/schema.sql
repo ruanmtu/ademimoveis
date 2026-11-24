@@ -222,6 +222,22 @@ CREATE TABLE IF NOT EXISTS cupom_usos (
   CONSTRAINT fk_usos_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- ---------------------------------------------------------
+-- Recuperação de senha (link de uso único, guardado só como hash)
+-- ---------------------------------------------------------
+CREATE TABLE IF NOT EXISTS senha_resets (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  usuario_id   INT UNSIGNED NOT NULL,
+  token_hash   CHAR(64)     NOT NULL,
+  expira_em    DATETIME     NOT NULL,
+  usado_em     DATETIME     NULL,
+  ip           VARCHAR(45)  NULL,
+  criado_em    DATETIME     NOT NULL,
+  UNIQUE KEY uk_senha_resets_token (token_hash),
+  KEY idx_senha_resets_usuario (usuario_id, criado_em),
+  CONSTRAINT fk_senha_resets_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Planos de exemplo (altere nomes, valores e limites em Admin → Planos)
