@@ -1,0 +1,37 @@
+# Teste de conexão FTP com a Hostinger (somente leitura: lista a public_html, não altera nada).
+# Roda quando este arquivo muda ou manualmente em Actions → "Testar conexão FTP" → Run workflow.
+name: Testar conexão FTP
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/testar-ftp.yml']
+
+jobs:
+  testar:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conferir se os segredos foram cadastrados
+        env:
+          S: ${{ secrets.FTP_SERVER }}
+          U: ${{ secrets.FTP_USERNAME }}
+          P: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          faltando=0
+          [ -z "$S" ] && echo "::error::Falta o segredo FTP_SERVER" && faltando=1
+          [ -z "$U" ] && echo "::error::Falta o segredo FTP_USERNAME" && faltando=1
+          [ -z "$P" ] && echo "::error::Falta o segredo FTP_PASSWORD" && faltando=1
+          [ $faltando -eq 0 ] && echo "Os 3 segredos estão cadastrados."
+          exit $faltando
+
+      - name: Conectar e listar a public_html (somente leitura)
+        env:
+          S: ${{ secrets.FTP_SERVER }}
+          U: ${{ secrets.FTP_USERNAME }}
+          P: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          sudo apt-get install -y -qq lftp > /dev/null
+          HOST="${S#ftp://}"; HOST="${HOST%/}"
+          lftp -u "$U","$P" -p 21 -e "set ftp:ssl-allow no; set net:max-retries 2; set net:timeout 20; cls -l public_html; bye" "$HOST"
+          echo "CONEXÃO FTP OK"
