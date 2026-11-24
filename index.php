@@ -157,7 +157,7 @@ require __DIR__ . '/includes/header.php';
       <h2>Você é corretor ou proprietário?</h2>
       <p>Anuncie seus imóveis, receba mensagens de interessados e construa sua reputação com avaliações.</p>
     </div>
-    <a class="btn btn-grande" href="<?= url('cadastro.php?tipo=anunciante') ?>">Quero anunciar</a>
+    <a class="btn" href="<?= url('cadastro.php?tipo=anunciante') ?>">Quero anunciar</a>
   </div>
 </section>
 <?php require __DIR__ . '/includes/footer.php'; ?>

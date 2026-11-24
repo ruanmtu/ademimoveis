@@ -338,11 +338,11 @@ legend { font-weight: 700; margin-bottom: 10px; font-family: var(--fonte-titulo)
 .chip:hover { box-shadow: inset 0 0 0 1.5px var(--cobre); color: var(--cobre-escuro); }
 .chip small { color: var(--texto-suave); font-weight: 500; }
 
-.cta-anunciante { position: relative; background: var(--ipe); color: #fff; padding: 56px 0; margin-top: 32px; overflow: hidden; }
+.cta-anunciante { position: relative; background: var(--ipe); color: #fff; padding: 30px 0; margin-top: 32px; overflow: hidden; border-bottom: 1px solid rgba(233,162,59,.16); }
 .cta-anunciante::before { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(176deg, rgba(255,255,255,.02) 0 2px, transparent 2px 9px); }
 .cta-inner { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
-.cta-anunciante h2 { color: #fff; font-size: clamp(1.5rem, 3vw, 2rem); font-weight: 800; letter-spacing: -.025em; }
-.cta-inner p { color: #e3d4c4; margin: 0; max-width: 56ch; }
+.cta-anunciante h2 { color: #fff; font-size: clamp(1.2rem, 2.2vw, 1.45rem); font-weight: 800; letter-spacing: -.02em; margin-bottom: 4px; }
+.cta-inner p { color: #e3d4c4; margin: 0; max-width: 60ch; font-size: .95rem; }
 
 /* ---------------- Busca ---------------- */
 .busca-layout { display: grid; grid-template-columns: 290px 1fr; gap: 32px; padding: 32px 0; align-items: start; }
@@ -517,14 +517,18 @@ input[type=file]::file-selector-button { font: 700 .88rem var(--fonte-texto); bo
 .chat-form textarea { margin: 0; max-height: 140px; background: var(--cal); border-color: transparent; border-radius: 14px; }
 
 /* ---------------- Rodapé ---------------- */
-main:has(> .cta-anunciante:last-child) + .rodape { margin-top: 0; border-top: 1px solid rgba(233,162,59,.18); }
-.rodape { background: var(--ipe); margin-top: 56px; padding: 40px 0 20px; color: #cdbba9; font-size: .94rem; }
-.rodape-inner { display: flex; justify-content: space-between; gap: 28px; flex-wrap: wrap; align-items: flex-start; }
-.rodape-logo { width: 190px; height: auto; margin-bottom: 10px; }
-.rodape-inner div:last-child { display: flex; flex-direction: column; gap: 8px; }
-.rodape a { color: #efe1d2; text-decoration: none; font-weight: 600; }
+main:has(> .cta-anunciante:last-child) + .rodape { margin-top: 0; }
+.rodape { background: #23150e; margin-top: 56px; padding: 36px 0 0; color: #bba795; font-size: .9rem; line-height: 1.55; }
+.rodape-grade { display: grid; grid-template-columns: 1.4fr 1fr 1fr 1.2fr; gap: 28px; padding-bottom: 28px; }
+.rodape-logo { width: 130px; height: auto; margin-bottom: 8px; }
+.rodape-marca p { margin: 0; max-width: 30ch; }
+.rodape-col { display: flex; flex-direction: column; gap: 6px; }
+.rodape-col h4 { margin: 0 0 4px; font-family: var(--fonte-titulo); font-size: .95rem; font-weight: 700; color: #f3e6d8; letter-spacing: 0; }
+.rodape a { color: #d9c6b3; text-decoration: none; width: fit-content; }
 .rodape a:hover { color: var(--ouro); }
-.copy { margin-top: 28px; padding-top: 18px; border-top: 1px solid rgba(233,162,59,.2); font-size: .86rem; }
+.rodape-base { display: flex; justify-content: space-between; gap: 8px 24px; flex-wrap: wrap; padding: 14px 0 18px; border-top: 1px solid rgba(233,162,59,.16); font-size: .8rem; color: #9c8877; }
+.rodape-creditos { color: #fff; }
+.rodape-creditos strong { color: #fff; font-weight: 700; }
 .texto-legal { max-width: 75ch; }
 .texto-legal h2 { margin-top: 1.4em; }
 
@@ -547,6 +551,8 @@ main:has(> .cta-anunciante:last-child) + .rodape { margin-top: 0; border-top: 1p
   .atalhos-comodidades { grid-template-columns: repeat(6, 1fr); }
 }
 @media (max-width: 960px) {
+  .rodape-grade { grid-template-columns: 1fr 1fr; }
+  .rodape-marca { grid-column: 1 / -1; }
   .busca-layout, .imovel-layout { grid-template-columns: 1fr; }
   .filtros, .imovel-lateral { position: static; max-height: none; }
   .duas-colunas { grid-template-columns: 1fr; }
