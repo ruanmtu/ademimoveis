@@ -1,0 +1,56 @@
+<?php
+/** @var string $titulo */
+$u = usuario();
+$naoLidas = $u ? mensagens_nao_lidas((int) $u['id']) : 0;
+?>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><?= e(isset($titulo) ? $titulo . ' | ' . APP_NAME : APP_NAME . ' - Imóveis para comprar e alugar') ?></title>
+<meta name="description" content="<?= e($descricaoPagina ?? 'ADemóveis: encontre casas, apartamentos e terrenos para comprar ou alugar e fale direto com o anunciante.') ?>">
+<meta name="csrf-token" content="<?= e(csrf_token()) ?>">
+<link rel="icon" href="<?= asset('img/favicon.png') ?>" type="image/png">
+<link rel="apple-touch-icon" href="<?= asset('img/favicon.png') ?>">
+<meta name="theme-color" content="#3b2418">
+<meta property="og:image" content="<?= url('assets/img/logo-completa.png') ?>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Montserrat:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="<?= asset('css/style.css') ?>">
+</head>
+<body>
+<header class="topo">
+  <div class="container topo-inner">
+    <a class="logo" href="<?= url('index.php') ?>">
+      <img src="<?= asset('img/logo-topo.webp') ?>" alt="ADemóveis - Corretora de Imóveis" width="125" height="52">
+    </a>
+    <button class="menu-toggle" aria-label="Abrir menu" data-toggle-menu>☰</button>
+    <nav class="menu" id="menu">
+      <a href="<?= url('imoveis.php?finalidade=venda') ?>">Comprar</a>
+      <a href="<?= url('imoveis.php?finalidade=aluguel') ?>">Alugar</a>
+      <?php if ($u): ?>
+        <a href="<?= url('chat/index.php') ?>">Mensagens<?php if ($naoLidas): ?> <span class="badge"><?= $naoLidas ?></span><?php endif; ?></a>
+        <?php if ($u['tipo'] === 'anunciante'): ?>
+          <a href="<?= url('painel/index.php') ?>">Meu painel</a>
+        <?php elseif ($u['tipo'] === 'admin'): ?>
+          <a href="<?= url('admin/index.php') ?>">Administração</a>
+        <?php endif; ?>
+        <a href="<?= url('conta.php') ?>" class="menu-usuario"><?= e(explode(' ', $u['nome'])[0]) ?></a>
+        <a href="<?= url('logout.php') ?>" class="btn btn-sm btn-claro">Sair</a>
+      <?php else: ?>
+        <a href="<?= url('cadastro.php?tipo=anunciante') ?>">Anuncie seu imóvel</a>
+        <a href="<?= url('login.php') ?>" class="btn btn-sm">Entrar</a>
+      <?php endif; ?>
+    </nav>
+  </div>
+</header>
+<main>
+<?php $fl = flashes(); if ($fl): ?>
+  <div class="container flashes">
+    <?php foreach ($fl as $fm): ?>
+      <div class="alerta alerta-<?= e($fm['tipo']) ?>"><?= e($fm['msg']) ?></div>
+    <?php endforeach; ?>
+  </div>
+<?php endif; ?>

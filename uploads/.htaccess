@@ -1,0 +1,8 @@
+# Nunca executar scripts enviados por usuários
+<FilesMatch "\.(php|phtml|phar|php\d|pl|py|cgi|sh|htaccess)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_php.c>
+  php_flag engine off
+</IfModule>
+Options -Indexes

@@ -1,0 +1,13 @@
+Options -Indexes
+DirectoryIndex index.php
+AddDefaultCharset UTF-8
+
+# Bloqueia arquivos internos
+<FilesMatch "^(\.env|\.git.*|composer\.(json|lock)|README\.md)$">
+  Require all denied
+</FilesMatch>
+
+# Força HTTPS em produção (descomente quando o certificado SSL estiver ativo)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
