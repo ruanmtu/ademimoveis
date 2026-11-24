@@ -57,6 +57,18 @@
     atualizar();
   }
 
+  // CRECI: os campos só aparecem para quem marca que tem registro
+  const temCreci = document.querySelector('[data-tem-creci]');
+  const camposCreci = document.querySelector('[data-campos-creci]');
+  if (temCreci && camposCreci) {
+    const mostrar = () => {
+      camposCreci.hidden = !temCreci.checked;
+      if (temCreci.checked) camposCreci.querySelector('input')?.focus({ preventScroll: true });
+    };
+    temCreci.addEventListener('change', mostrar);
+    camposCreci.hidden = !temCreci.checked;
+  }
+
   // Botão mostra que está enviando (evita clique duplo)
   document.querySelectorAll('[data-form-auth]').forEach((f) => {
     f.addEventListener('submit', () => {

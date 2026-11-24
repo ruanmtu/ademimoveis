@@ -39,6 +39,8 @@ if (is_post()) {
     }
     if ($anunc) {
         if (mb_strlen(preg_replace('/\D/', '', $d['telefone'])) < 10) $erros['telefone'] = 'Informe um telefone com DDD.';
+        // CRECI é opcional: só é considerado se a pessoa marcar que tem
+        if (empty($_POST['tem_creci'])) { $d['creci'] = ''; $d['creci_uf'] = ''; }
         if ($d['creci'] !== '') {
             $lido = ler_creci($d['creci'], $doc['tipo'] ?? 'cpf');
             if ($lido && $lido['uf'] && $d['creci_uf'] === '') $d['creci_uf'] = $lido['uf'];
@@ -160,25 +162,27 @@ require __DIR__ . '/includes/header.php';
 
         <div class="so-anunciante" data-so-anunciante>
           <div class="bloco-creci">
-            <div class="bloco-creci-topo">
-              <?= icone('cracha', 22) ?>
-              <div><strong>CRECI</strong><small>Opcional para proprietários. Corretores e imobiliárias com CRECI verificado ganham um selo no perfil.</small></div>
-            </div>
-            <div class="linha-creci">
-              <div>
-                <label for="creci">Número do registro</label>
-                <input type="text" id="creci" name="creci" value="<?= e($d['creci']) ?>" maxlength="20" placeholder="Ex.: CRECI-CE 24199" data-creci<?= aria_erro($erros, 'creci') ?>>
+            <label class="check check-creci">
+              <input type="checkbox" name="tem_creci" value="1" data-tem-creci <?= !empty($_POST['tem_creci']) ? 'checked' : '' ?>>
+              <span><strong>Sou corretor(a) ou imobiliária e tenho CRECI</strong><small>Opcional. Proprietários podem anunciar sem CRECI. Quem informa e tem o registro confirmado pela equipe ganha o selo "CRECI verificado" no perfil.</small></span>
+            </label>
+            <div class="campos-creci" data-campos-creci>
+              <div class="linha-creci">
+                <div>
+                  <label for="creci">Número do CRECI</label>
+                  <input type="text" id="creci" name="creci" value="<?= e($d['creci']) ?>" maxlength="20" placeholder="Ex.: CRECI-CE 24199" data-creci<?= aria_erro($erros, 'creci') ?>>
+                </div>
+                <div>
+                  <label for="creci_uf">Estado</label>
+                  <select id="creci_uf" name="creci_uf"<?= aria_erro($erros, 'creci_uf') ?>>
+                    <option value="">UF</option>
+                    <?php foreach (estados() as $uf): ?><option <?= $d['creci_uf'] === $uf ? 'selected' : '' ?>><?= $uf ?></option><?php endforeach; ?>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label for="creci_uf">Estado</label>
-                <select id="creci_uf" name="creci_uf"<?= aria_erro($erros, 'creci_uf') ?>>
-                  <option value="">UF</option>
-                  <?php foreach (estados() as $uf): ?><option <?= $d['creci_uf'] === $uf ? 'selected' : '' ?>><?= $uf ?></option><?php endforeach; ?>
-                </select>
-              </div>
+              <p class="campo-ajuda" data-creci-ajuda>Digite como aparece na sua carteira do CRECI.</p>
+              <?= erro_campo($erros, 'creci') ?><?= erro_campo($erros, 'creci_uf') ?>
             </div>
-            <p class="campo-ajuda" data-creci-ajuda>Digite como aparece na sua carteira do CRECI.</p>
-            <?= erro_campo($erros, 'creci') ?><?= erro_campo($erros, 'creci_uf') ?>
           </div>
 
           <div class="linha-2">

@@ -720,3 +720,11 @@ main:has(> .cta-anunciante:last-child) + .rodape { margin-top: 0; }
 .rodape-corretor strong { color: #f3e6d8; font-family: var(--fonte-titulo); font-size: .98rem; letter-spacing: 0; }
 .rodape-corretor span { color: #bba795; font-size: .86rem; }
 .rodape-corretor .rodape-creci { color: var(--ouro); font-weight: 700; letter-spacing: .02em; }
+
+/* CRECI opcional no cadastro */
+label.check.check-creci { align-items: flex-start; margin: 0; cursor: pointer; }
+.check-creci input { margin-top: 3px; flex: none; }
+.check-creci strong { display: block; font-family: var(--fonte-titulo); color: var(--ipe); font-size: .98rem; }
+.check-creci small { display: block; color: var(--texto-suave); font-size: .86rem; font-weight: 500; line-height: 1.45; margin-top: 2px; }
+.campos-creci { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--linha); }
+.campos-creci[hidden] { display: none; }
