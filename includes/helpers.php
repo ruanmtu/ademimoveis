@@ -179,6 +179,7 @@ function icone(string $nome, int $tam = 22): string
         'documento'     => '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="11" r="2"/><path d="M5.5 16c.6-1.4 1.7-2 3-2s2.4.6 3 2M14 10h4M14 13h4"/>',
         'cracha'        => '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 3v3h6V3"/><circle cx="12" cy="11" r="2.5"/><path d="M8 17c.7-1.5 2.2-2.3 4-2.3s3.3.8 4 2.3"/>',
         'verificado'    => '<path d="M12 2l2.4 2.1 3.2-.3.8 3.1 2.8 1.6-1.2 3 1.2 3-2.8 1.6-.8 3.1-3.2-.3L12 22l-2.4-2.1-3.2.3-.8-3.1-2.8-1.6 1.2-3-1.2-3 2.8-1.6.8-3.1 3.2.3z"/><path d="m8.5 12 2.5 2.5 4.5-5"/>',
+        'whatsapp'      => '<path d="M3.5 20.5l1.3-4.2A8.5 8.5 0 1 1 8 19.4z"/><path d="M9 8.5c0 3.6 2.9 6.5 6.5 6.5l1.2-1.5-2.1-1-1 .8a4.6 4.6 0 0 1-2.4-2.4l.8-1-1-2.1z"/>',
         'banho'         => '<path d="M4 12h16v3a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5z"/><path d="M6 12V5a2 2 0 0 1 3.5-1.3M8 20l-1 2M16 20l1 2"/>',
         'area'          => '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/><path d="M9 9h6v6H9z"/>',
         'seta'          => '<path d="M5 12h14M13 6l6 6-6 6"/>',
@@ -208,6 +209,15 @@ function status_assinatura_label(string $s): string
 {
     return ['inativa' => 'Inativa', 'pendente' => 'Aguardando pagamento',
             'ativa' => 'Ativa', 'cancelada' => 'Cancelada'][$s] ?? $s;
+}
+
+/** Link do WhatsApp (wa.me) com mensagem pronta. Retorna null se o número não for válido. */
+function link_whatsapp(?string $numero, string $mensagem = ''): ?string
+{
+    $d = preg_replace('/\D/', '', (string) $numero);
+    if (strlen($d) === 10 || strlen($d) === 11) $d = '55' . $d;      // DDD + número
+    if (!preg_match('/^55\d{10,11}$/', $d)) return null;
+    return 'https://wa.me/' . $d . ($mensagem !== '' ? '?text=' . rawurlencode($mensagem) : '');
 }
 
 function estrelas(float $nota): string

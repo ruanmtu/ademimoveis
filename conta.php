@@ -49,6 +49,9 @@ if (is_post()) {
                         }
                     }
                 }
+                if ($anunc && post('whatsapp') !== '' && !link_whatsapp(post('whatsapp'))) {
+                    throw new RuntimeException('WhatsApp inválido. Use DDD + número, como (85) 98999-0000.');
+                }
                 // foto só é trocada depois que todo o resto foi validado
                 if (!empty($_FILES['foto']['name'])) {
                     $foto = salvar_imagem($_FILES['foto'], 'perfis', 500);
@@ -88,7 +91,7 @@ if (is_post()) {
 }
 
 $titulo = 'Minha conta';
-$scripts = ['js/documentos.js'];
+$scripts = ['js/documentos.js', 'js/auth.js'];
 require __DIR__ . '/includes/header.php';
 ?>
 <div class="container secao conta">
@@ -108,7 +111,8 @@ require __DIR__ . '/includes/header.php';
       <label>E-mail <input type="email" value="<?= e($u['email']) ?>" disabled></label>
       <div class="linha-2">
         <label>Telefone <input type="tel" name="telefone" value="<?= e($u['telefone']) ?>" maxlength="30"></label>
-        <?php if ($anunc): ?><label>WhatsApp (aparece no perfil) <input type="tel" name="whatsapp" value="<?= e($u['whatsapp']) ?>" maxlength="30"></label><?php endif; ?>
+        <?php if ($anunc): ?><label>WhatsApp para contato <input type="tel" name="whatsapp" value="<?= e($u['whatsapp']) ?>" maxlength="20" placeholder="(00) 00000-0000" data-telefone>
+          <small class="dica">Aparece como botão "Chamar no WhatsApp" nos seus anúncios e no seu perfil. Deixe vazio para não mostrar.</small></label><?php endif; ?>
       </div>
       <?php if ($u['tipo'] === 'cliente'): ?>
         <label>CPF

@@ -75,12 +75,13 @@ require __DIR__ . '/includes/header.php';
           <input type="hidden" name="anunciante_id" value="<?= $id ?>">
           <button class="btn" type="submit">💬 Conversar no chat</button>
         </form>
-        <?php if ($a['whatsapp']): ?>
-          <a class="btn btn-claro" target="_blank" rel="noopener" href="https://wa.me/55<?= e(preg_replace('/\D/', '', $a['whatsapp'])) ?>">WhatsApp</a>
-        <?php endif; ?>
+
       <?php else: ?>
         <?php $_SESSION['voltar_para'] = $_SERVER['REQUEST_URI'] ?? ''; ?>
         <a class="btn" href="<?= url('login.php') ?>">Entrar para conversar</a>
+      <?php endif; ?>
+      <?php if (!$souEu && ($zap = link_whatsapp($a['whatsapp'], 'Olá, ' . explode(' ', $a['nome'])[0] . '! Vi seu perfil na ADemóveis e gostaria de saber mais sobre seus imóveis.'))): ?>
+        <a class="btn btn-whatsapp" target="_blank" rel="noopener" href="<?= e($zap) ?>"><?= icone('whatsapp', 20) ?>WhatsApp</a>
       <?php endif; ?>
     </div>
   </div>
