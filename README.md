@@ -63,6 +63,12 @@ Se você já tinha importado o `schema.sql` de uma versão anterior, importe no 
 - O **CRECI** é opcional. O número fica como na carteira (ex.: CRECI-CE 24199); se a pessoa digitar "CRECI-CE 24199", o estado é preenchido sozinho. A letra F ou J é opcional e, quando digitada, precisa combinar com CPF (F) ou CNPJ (J). Como não existe consulta nacional automática, a confirmação é feita em *Admin → Usuários → anunciante → Verificar CRECI*, na consulta pública do CRECI do estado. Depois de confirmado, o perfil ganha o selo "CRECI verificado".
 - O dígito verificador só garante que o número é bem formado, não que a pessoa ou empresa existe ou está regular.
 
+## Fotos
+
+- Cada foto pode ter até **25 MB** (`UPLOAD_MAX_MB` no config.php; o mínimo é 25).
+- Antes de enviar, o navegador reduz a foto para no máximo 2560 px, e uma foto de 20 MB do celular vira 1 a 3 MB. O servidor ainda redimensiona para 2048 px, corrige fotos "deitadas" de celular e regrava como JPEG.
+- O arquivo `.user.ini` pede ao PHP da Hostinger limites maiores de envio. Se o hPanel mostrar valores menores, ajuste em *Sites → Gerenciar → Avançado → Configuração do PHP*: `upload_max_filesize` 30M, `post_max_size` 256M, `memory_limit` 512M.
+
 ## Recuperação de senha
 
 Em *Entrar → Esqueceu a senha?*, a pessoa recebe por e-mail um link que vale por 30 minutos e só pode ser usado uma vez (o banco guarda só o hash do link). O e-mail sai pela função `mail()` da hospedagem, como no BV Fotos.

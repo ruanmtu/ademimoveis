@@ -91,16 +91,18 @@ if (is_post()) {
         }
 
         $falhas = 0;
+        $motivos = [];
         $ordem = (int) val('SELECT COALESCE(MAX(ordem), -1) FROM imovel_fotos WHERE imovel_id = ?', [$id]);
         foreach ($novas as $arq) {
             try {
-                $rel = salvar_imagem($arq, 'imoveis');
+                $rel = salvar_imagem($arq, 'imoveis', 2048);
                 q('INSERT INTO imovel_fotos (imovel_id, arquivo, ordem, criado_em) VALUES (?,?,?,?)', [$id, $rel, ++$ordem, agora()]);
             } catch (RuntimeException $ex) {
                 $falhas++;
+                $motivos[$ex->getMessage()] = true;
             }
         }
-        flash('sucesso', 'Imóvel salvo.' . ($falhas ? " $falhas foto(s) não puderam ser enviadas (formato ou tamanho inválido)." : ''));
+        flash('sucesso', 'Imóvel salvo.' . ($falhas ? " $falhas foto(s) não puderam ser enviadas: " . implode(' ', array_keys($motivos)) : ''));
         redirect('painel/imovel_form.php?id=' . $id);
     }
 }
@@ -186,8 +188,10 @@ require __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="caixa" id="fotos">
-      <h2>Fotos <small>(seu plano permite até <?= $limiteFotos ?>, máx. <?= UPLOAD_MAX_MB ?> MB cada)</small></h2>
-      <input type="file" name="fotos[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple data-preview>
+      <h2>Fotos <small>(seu plano permite até <?= $limiteFotos ?>, até <?= limite_foto_mb() ?> MB cada)</small></h2>
+      <input type="file" name="fotos[]" accept="image/jpeg,image/png,image/webp,image/gif" multiple data-preview
+             data-max-mb="<?= limite_foto_mb() ?>" data-max-lado="2560">
+      <p class="dica" data-status-fotos>Fotos grandes são reduzidas no seu aparelho antes de enviar, para subir mais rápido. A qualidade continua ótima para o anúncio.</p>
       <div class="preview-fotos" data-preview-area></div>
     </div>
 

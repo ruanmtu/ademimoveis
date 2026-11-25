@@ -39,5 +39,5 @@ define('MAIL_FROM', '');
 define('MAIL_FROM_NOME', 'Ademóveis');
 
 // ---------------- Uploads ----------------
-define('UPLOAD_MAX_MB', 8);          // tamanho máximo por foto
+define('UPLOAD_MAX_MB', 25);         // tamanho máximo por foto (mínimo 25)
 define('FOTOS_POR_IMOVEL', 20);      // limite de fotos por imóvel

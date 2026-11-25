@@ -98,6 +98,11 @@ function csrf_field(): string
 
 function csrf_check(): void
 {
+    if (empty($_POST) && empty($_FILES) && (int) ($_SERVER['CONTENT_LENGTH'] ?? 0) > ini_bytes((string) ini_get('post_max_size'))) {
+        flash('erro', 'O envio ficou grande demais para o servidor (limite de ' . (int) floor(ini_bytes((string) ini_get('post_max_size')) / 1048576)
+            . ' MB por vez). Envie menos fotos de cada vez.');
+        redirect(ltrim(parse_url($_SERVER['REQUEST_URI'] ?? 'index.php', PHP_URL_PATH) ?: 'index.php', '/'));
+    }
     $t = $_POST['_csrf'] ?? ($_SERVER['HTTP_X_CSRF_TOKEN'] ?? '');
     if (!is_string($t) || !hash_equals(csrf_token(), $t)) {
         http_response_code(419);
@@ -288,22 +293,57 @@ function links_paginacao(array $p): string
 }
 
 // ---------------- Upload de imagens ----------------
+/** Converte valores do php.ini como "128M" ou "1G" em bytes. */
+function ini_bytes(string $v): int
+{
+    $v = trim($v);
+    if ($v === '' || $v === '-1') return PHP_INT_MAX;
+    $n = (float) $v;
+    return (int) match (strtoupper(substr($v, -1))) { 'G' => $n * 1073741824, 'M' => $n * 1048576, 'K' => $n * 1024, default => $n };
+}
+
+/** Limite de tamanho por foto, em MB: pelo menos 25 MB (ou o do config.php, se for maior). */
+function limite_foto_mb(): int
+{
+    return max(25, defined('UPLOAD_MAX_MB') ? (int) UPLOAD_MAX_MB : 0);
+}
+
+/** Limite que vale de fato: o menor entre o do site e o do servidor PHP (upload_max_filesize). */
+function limite_foto_efetivo_mb(): int
+{
+    $servidor = (int) floor(ini_bytes((string) ini_get('upload_max_filesize')) / 1048576);
+    return max(1, min(limite_foto_mb(), $servidor ?: limite_foto_mb()));
+}
+
 /**
- * Valida e re-salva a imagem (redimensiona e converte para JPEG), removendo qualquer
- * conteúdo malicioso embutido. Retorna o caminho relativo dentro de /uploads.
+ * Valida e re-salva a imagem (redimensiona, corrige a rotação de fotos de celular e converte
+ * para JPEG), removendo qualquer conteúdo malicioso embutido. Retorna o caminho dentro de /uploads.
  */
 function salvar_imagem(array $file, string $pasta, int $maxLado = 1600): string
 {
-    if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
+    $erro = $file['error'] ?? UPLOAD_ERR_NO_FILE;
+    if ($erro === UPLOAD_ERR_INI_SIZE || $erro === UPLOAD_ERR_FORM_SIZE) {
+        throw new RuntimeException('Foto maior que o servidor aceita (' . limite_foto_efetivo_mb() . ' MB).');
+    }
+    if ($erro !== UPLOAD_ERR_OK) {
         throw new RuntimeException('Falha no envio da imagem.');
     }
-    if ($file['size'] > UPLOAD_MAX_MB * 1024 * 1024) {
-        throw new RuntimeException('Imagem maior que ' . UPLOAD_MAX_MB . ' MB.');
+    if ($file['size'] > limite_foto_mb() * 1024 * 1024) {
+        throw new RuntimeException('Imagem maior que ' . limite_foto_mb() . ' MB.');
     }
     $info = @getimagesize($file['tmp_name']);
     $tiposOk = [IMAGETYPE_JPEG, IMAGETYPE_PNG, IMAGETYPE_WEBP, IMAGETYPE_GIF];
     if (!$info || !in_array($info[2], $tiposOk, true)) {
         throw new RuntimeException('Formato inválido. Envie JPG, PNG, WEBP ou GIF.');
+    }
+    [$w, $h] = [$info[0], $info[1]];
+    if ($w * $h > 80_000_000) { // 80 megapixels: protege a memória do servidor
+        throw new RuntimeException('Imagem com resolução grande demais (acima de 80 megapixels).');
+    }
+    // fotos grandes precisam de mais memória para serem abertas
+    $necessario = (int) ($w * $h * 5 * 1.8) + 64 * 1048576;
+    if (ini_bytes((string) ini_get('memory_limit')) < $necessario) {
+        @ini_set('memory_limit', (string) max(512, (int) ceil($necessario / 1048576)) . 'M');
     }
     $src = match ($info[2]) {
         IMAGETYPE_JPEG => @imagecreatefromjpeg($file['tmp_name']),
@@ -314,13 +354,23 @@ function salvar_imagem(array $file, string $pasta, int $maxLado = 1600): string
     if (!$src) {
         throw new RuntimeException('Não foi possível ler a imagem.');
     }
-    [$w, $h] = [$info[0], $info[1]];
+    // rotação gravada pela câmera do celular (EXIF)
+    if ($info[2] === IMAGETYPE_JPEG && function_exists('exif_read_data')) {
+        $exif = @exif_read_data($file['tmp_name']);
+        $giro = [3 => 180, 6 => -90, 8 => 90][(int) ($exif['Orientation'] ?? 1)] ?? 0;
+        if ($giro && ($rot = imagerotate($src, $giro, 0))) {
+            imagedestroy($src);
+            $src = $rot;
+            [$w, $h] = [imagesx($src), imagesy($src)];
+        }
+    }
     $escala = min(1, $maxLado / max($w, $h));
     $nw = max(1, (int) round($w * $escala));
     $nh = max(1, (int) round($h * $escala));
     $dst = imagecreatetruecolor($nw, $nh);
     imagefill($dst, 0, 0, imagecolorallocate($dst, 255, 255, 255));
     imagecopyresampled($dst, $src, 0, 0, 0, 0, $nw, $nh, $w, $h);
+    imagedestroy($src);
 
     $sub = $pasta . '/' . date('Y/m');
     $dir = UPLOAD_PATH . '/' . $sub;
@@ -328,8 +378,8 @@ function salvar_imagem(array $file, string $pasta, int $maxLado = 1600): string
         throw new RuntimeException('Não foi possível criar a pasta de uploads.');
     }
     $nome = bin2hex(random_bytes(12)) . '.jpg';
-    imagejpeg($dst, $dir . '/' . $nome, 82);
-    imagedestroy($src);
+    imageinterlace($dst, true); // JPEG progressivo: aparece mais rápido no celular
+    imagejpeg($dst, $dir . '/' . $nome, 84);
     imagedestroy($dst);
     return $sub . '/' . $nome;
 }
