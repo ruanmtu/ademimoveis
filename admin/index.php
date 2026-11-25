@@ -32,6 +32,10 @@ require __DIR__ . '/../includes/header.php';
     <div class="alerta alerta-aviso">Mercado Pago não configurado. Anunciantes só podem ser ativados manualmente em <a href="<?= url('admin/usuarios.php?tipo=anunciante') ?>">Usuários</a>.</div>
   <?php endif; ?>
 
+  <?php $limServ = (int) floor(ini_bytes((string) ini_get('upload_max_filesize')) / 1048576); $limPost = (int) floor(ini_bytes((string) ini_get('post_max_size')) / 1048576);
+        if ($limServ < limite_foto_mb() || $limPost < 60): ?>
+    <div class="alerta alerta-aviso">O servidor está limitando os envios (<?= $limServ ?> MB por arquivo, <?= $limPost ?> MB por envio). As fotos ainda chegam reduzidas pelo navegador, mas para aceitar arquivos de até <?= limite_foto_mb() ?> MB ajuste no hPanel: Sites → Gerenciar → Avançado → Configuração do PHP (upload_max_filesize 30M, post_max_size 256M).</div>
+  <?php endif; ?>
   <?php if ($n['creci_pend']): ?>
     <div class="alerta alerta-aviso"><?= $n['creci_pend'] ?> CRECI<?= $n['creci_pend'] > 1 ? 's' : '' ?> aguardando verificação. <a href="<?= url('admin/usuarios.php?creci=pendente') ?>">Verificar agora</a></div>
   <?php endif; ?>
