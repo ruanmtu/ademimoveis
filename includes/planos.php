@@ -13,6 +13,13 @@ function sufixo_periodo(int $meses): string
     return [1 => '/mês', 3 => '/trimestre', 6 => '/semestre', 12 => '/ano'][$meses] ?? "/$meses meses";
 }
 
+/** "1 imóvel", "3 imóveis" ou "Imóveis ilimitados". */
+function texto_limite_imoveis($limite): string
+{
+    $n = (int) $limite;
+    return $n === 0 ? 'Imóveis ilimitados' : ($n === 1 ? '1 imóvel' : $n . ' imóveis');
+}
+
 function recursos_plano(?string $txt): array
 {
     return array_values(array_filter(array_map('trim', preg_split('/\r\n|\n|\\\\n/', (string) $txt))));

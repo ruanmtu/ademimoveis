@@ -113,7 +113,7 @@ require __DIR__ . '/../includes/header.php';
     <div><span>Situação</span><strong><?= e(status_assinatura_label($u['assinatura_status'])) ?><?= $emDia ? ' ✓' : '' ?></strong></div>
     <?php if ($planoAtual): ?>
       <div><span>Plano</span><strong><?= e($planoAtual['nome']) ?></strong></div>
-      <div><span>Limites</span><strong class="limites"><?= $planoAtual['limite_imoveis'] ? (int) $planoAtual['limite_imoveis'] . ' imóveis' : 'Imóveis ilimitados' ?> · <?= (int) $planoAtual['limite_fotos'] ?> fotos · <?= (int) $planoAtual['destaques'] ?> destaques</strong></div>
+      <div><span>Limites</span><strong class="limites"><?= texto_limite_imoveis($planoAtual['limite_imoveis']) ?>, <?= (int) $planoAtual['limite_fotos'] ?> fotos por imóvel, <?= (int) $planoAtual['destaques'] === 1 ? '1 destaque' : (int) $planoAtual['destaques'] . ' destaques' ?></strong></div>
     <?php endif; ?>
     <div><span>Válida até</span><strong><?= $u['assinatura_status'] === 'ativa' && !$u['assinatura_ate'] ? 'Sem prazo' : data_br($u['assinatura_ate']) ?></strong></div>
     <?php if ($temMpAtiva): ?>
@@ -164,7 +164,7 @@ require __DIR__ . '/../includes/header.php';
           <?php if ($per > 1): ?><p class="dica">equivale a <?= dinheiro((float) $p['preco'] / $per) ?>/mês</p><?php endif; ?>
         <?php endif; ?>
         <ul>
-          <li><?= $p['limite_imoveis'] ? (int) $p['limite_imoveis'] . ' imóveis' : 'Imóveis ilimitados' ?></li>
+          <li><?= texto_limite_imoveis($p['limite_imoveis']) ?></li>
           <li>Até <?= (int) $p['limite_fotos'] ?> fotos por imóvel</li>
           <?php if ($p['destaques']): ?><li><?= (int) $p['destaques'] ?> imóve<?= $p['destaques'] > 1 ? 'is' : 'l' ?> em destaque</li><?php endif; ?>
           <?php foreach (recursos_plano($p['recursos']) as $r): ?><li><?= e($r) ?></li><?php endforeach; ?>

@@ -113,7 +113,7 @@ require __DIR__ . '/../includes/header.php';
         <div class="preco-grande"><?= dinheiro($p['preco']) ?><small><?= sufixo_periodo((int) $p['periodicidade_meses']) ?></small></div>
         <?php if ($p['descricao']): ?><p class="dica"><?= e($p['descricao']) ?></p><?php endif; ?>
         <ul>
-          <li><?= $p['limite_imoveis'] ? (int) $p['limite_imoveis'] . ' imóveis' : 'Imóveis ilimitados' ?></li>
+          <li><?= texto_limite_imoveis($p['limite_imoveis']) ?></li>
           <li><?= (int) $p['limite_fotos'] ?> fotos por imóvel</li>
           <li><?= $p['destaques'] ? (int) $p['destaques'] . ' imóve' . ($p['destaques'] > 1 ? 'is' : 'l') . ' em destaque' : 'Sem destaques' ?></li>
           <?php foreach (recursos_plano($p['recursos']) as $r): ?><li><?= e($r) ?></li><?php endforeach; ?>
