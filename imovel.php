@@ -29,6 +29,7 @@ $similares = all("SELECT i.*, (SELECT arquivo FROM imovel_fotos fo WHERE fo.imov
 
 $titulo = $im['titulo'];
 $descricaoPagina = mb_substr(strip_tags((string) $im['descricao']), 0, 155);
+if (!empty($fotos[0]['arquivo'])) $ogImagem = upload_url($fotos[0]['arquivo']);
 $scripts = ['js/galeria.js'];
 require __DIR__ . '/includes/header.php';
 ?>

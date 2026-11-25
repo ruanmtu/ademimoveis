@@ -14,7 +14,19 @@ $naoLidas = $u ? mensagens_nao_lidas((int) $u['id']) : 0;
 <link rel="icon" href="<?= asset('img/favicon.png') ?>" type="image/png">
 <link rel="apple-touch-icon" href="<?= asset('img/favicon.png') ?>">
 <meta name="theme-color" content="#3b2418">
-<meta property="og:image" content="<?= url('assets/img/logo-completa.png') ?>">
+<?php
+  $ogTitulo = isset($titulo) ? $titulo . ' | ' . SITE_NOME : SITE_NOME . ' - Imóveis para comprar e alugar';
+  $ogDescricao = $descricaoPagina ?? 'Ademóveis: encontre casas, apartamentos e terrenos para comprar ou alugar e fale direto com o anunciante.';
+  $ogUrl = BASE_URL . strtok($_SERVER['REQUEST_URI'] ?? '/', '#');
+?>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="<?= e(SITE_NOME) ?>">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="<?= e($ogTitulo) ?>">
+<meta property="og:description" content="<?= e($ogDescricao) ?>">
+<meta property="og:url" content="<?= e($ogUrl) ?>">
+<meta property="og:image" content="<?= e($ogImagem ?? url('assets/img/logo-completa.png')) ?>">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Dancing+Script:wght@600;700&family=Figtree:ital,wght@0,400..700;1,400&display=swap">
