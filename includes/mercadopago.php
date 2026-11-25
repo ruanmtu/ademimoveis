@@ -47,7 +47,7 @@ function mp_request(string $metodo, string $caminho, ?array $corpo = null): arra
 }
 
 /** Cria a assinatura recorrente e devolve os dados (init_point = link de pagamento). */
-function mp_criar_assinatura(array $usuario, array $plano, float $valor, ?array $cupom = null): array
+function mp_criar_assinatura(array $usuario, array $plano, float $valor, ?array $cupom = null, ?string $emailPagador = null): array
 {
     $motivo = APP_NAME . ' - Plano ' . $plano['nome'];
     if ($cupom) $motivo .= ' (cupom ' . $cupom['codigo'] . ')';
@@ -55,7 +55,8 @@ function mp_criar_assinatura(array $usuario, array $plano, float $valor, ?array 
     return mp_request('POST', '/preapproval', [
         'reason'             => mb_substr($motivo, 0, 250),
         'external_reference' => $ref,
-        'payer_email'        => $usuario['email'],
+        // o Mercado Pago exige que o pagamento seja feito pela conta com este e-mail
+        'payer_email'        => $emailPagador ?: $usuario['email'],
         'auto_recurring'     => [
             'frequency'          => max(1, (int) $plano['periodicidade_meses']),
             'frequency_type'     => 'months',
@@ -176,6 +177,9 @@ function mp_webhook_valido(string $dataId): bool
 {
     if (MP_WEBHOOK_SECRET === '') return true;
     $sig = $_SERVER['HTTP_X_SIGNATURE'] ?? '';
+    // Sem cabeçalho de assinatura: aceita, porque o site sempre confere os dados direto na API
+    // do Mercado Pago antes de mudar qualquer coisa (nem toda notificação de assinatura vem assinada).
+    if ($sig === '') return true;
     $reqId = $_SERVER['HTTP_X_REQUEST_ID'] ?? '';
     $ts = $v1 = '';
     foreach (explode(',', $sig) as $parte) {

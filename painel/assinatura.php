@@ -53,7 +53,10 @@ if (is_post()) {
             if (!mp_configurado()) {
                 throw new RuntimeException('Pagamento online ainda não configurado. Fale com a administração para ativar seu plano.');
             }
-            $pre = mp_criar_assinatura($u, $plano, $valor, $cupom);
+            $emailMp = mb_strtolower(post('email_mp')) ?: $u['email'];
+            if (!filter_var($emailMp, FILTER_VALIDATE_EMAIL)) throw new RuntimeException('Informe um e-mail válido da sua conta Mercado Pago.');
+            $_SESSION['email_mp'] = $emailMp;
+            $pre = mp_criar_assinatura($u, $plano, $valor, $cupom, $emailMp);
             if ($temMpAtiva) {
                 // troca de plano: a assinatura atual só é cancelada quando a nova for confirmada
                 q('UPDATE usuarios SET mp_preapproval_novo = ? WHERE id = ?', [$pre['id'], $u['id']]);
@@ -103,6 +106,7 @@ if ($codigoCupom !== '') {
 }
 
 $titulo = 'Assinatura';
+$scripts = ['js/assinatura.js'];
 require __DIR__ . '/../includes/header.php';
 ?>
 <div class="container secao">
@@ -143,6 +147,12 @@ require __DIR__ . '/../includes/header.php';
   <?php if ($erroCupom): ?><div class="alerta alerta-erro"><?= e($erroCupom) ?></div><?php endif; ?>
   <?php if ($cupomPrevia): ?><div class="alerta alerta-sucesso">Cupom <strong><?= e($cupomPrevia['codigo']) ?></strong>: <?= e(desconto_texto($cupomPrevia)) ?><?= $cupomPrevia['plano_id'] ? ' no plano ' . e(val('SELECT nome FROM planos WHERE id = ?', [$cupomPrevia['plano_id']])) : '' ?>. Escolha o plano abaixo.</div><?php endif; ?>
 
+  <div class="caixa email-mp">
+    <label for="email_mp">E-mail da sua conta Mercado Pago</label>
+    <input type="email" id="email_mp" value="<?= e($_SESSION['email_mp'] ?? $u['email']) ?>" autocomplete="email" data-email-mp>
+    <p class="dica">O Mercado Pago só aceita o pagamento se você entrar na conta dele com este mesmo e-mail. Se a sua conta do Mercado Pago usa outro e-mail, troque aqui antes de assinar.</p>
+  </div>
+
   <div class="planos">
     <?php foreach ($planos as $p):
         $per = (int) $p['periodicidade_meses'];
@@ -152,6 +162,7 @@ require __DIR__ . '/../includes/header.php';
       <form method="post" class="caixa plano <?= $p['recomendado'] ? 'plano-recomendado' : '' ?> <?= $atual ? 'plano-atual' : '' ?>">
         <?= csrf_field() ?><input type="hidden" name="plano_id" value="<?= (int) $p['id'] ?>">
         <?php if ($vale): ?><input type="hidden" name="cupom" value="<?= e($cupomPrevia['codigo']) ?>"><?php endif; ?>
+        <input type="hidden" name="email_mp" value="<?= e($_SESSION['email_mp'] ?? $u['email']) ?>" data-email-mp-copia>
         <?php if ($atual): ?><span class="selo-plano selo-atual">Seu plano</span><?php elseif ($p['recomendado']): ?><span class="selo-plano">Mais escolhido</span><?php endif; ?>
         <h3><?= e($p['nome']) ?></h3>
         <?php if ($p['descricao']): ?><p class="dica"><?= e($p['descricao']) ?></p><?php endif; ?>
