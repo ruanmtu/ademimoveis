@@ -35,7 +35,7 @@ if (is_post()) {
                 $u['id'], hash('sha256', $token), date('Y-m-d H:i:s', time() + RESET_MINUTOS * 60), mb_substr($ip, 0, 45), agora(),
             ]);
             [$html, $texto] = email_recuperacao($u['nome'], url('redefinir-senha.php?token=' . $token), RESET_MINUTOS);
-            enviar_email($u['email'], 'Redefinir sua senha na ADemóveis', $html, $texto);
+            enviar_email($u['email'], 'Redefinir sua senha na Ademóveis', $html, $texto);
         }
         // Mesma resposta exista ou não a conta: não revela quais e-mails estão cadastrados.
         $enviado = true;

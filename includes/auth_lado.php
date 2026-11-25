@@ -10,7 +10,7 @@
   <span class="auth-chamine" aria-hidden="true"></span>
   <div class="auth-telhado" aria-hidden="true"></div>
   <div class="auth-marca-conteudo">
-    <img class="auth-logo" src="<?= asset('img/logo-completa.webp') ?>" alt="ADemóveis - Corretora de Imóveis" width="220" height="152">
+    <img class="auth-logo" src="<?= asset('img/logo-completa.webp') ?>" alt="Ademóveis - Corretora de Imóveis" width="220" height="152">
     <h2><?= e($ladoTitulo) ?></h2>
     <p><?= e($ladoTexto) ?></p>
     <ul class="auth-beneficios">

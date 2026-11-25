@@ -8,8 +8,8 @@ $naoLidas = $u ? mensagens_nao_lidas((int) $u['id']) : 0;
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title><?= e(isset($titulo) ? $titulo . ' | ' . APP_NAME : APP_NAME . ' - Imóveis para comprar e alugar') ?></title>
-<meta name="description" content="<?= e($descricaoPagina ?? 'ADemóveis: encontre casas, apartamentos e terrenos para comprar ou alugar e fale direto com o anunciante.') ?>">
+<title><?= e(isset($titulo) ? $titulo . ' | ' . SITE_NOME : SITE_NOME . ' - Imóveis para comprar e alugar') ?></title>
+<meta name="description" content="<?= e($descricaoPagina ?? 'Ademóveis: encontre casas, apartamentos e terrenos para comprar ou alugar e fale direto com o anunciante.') ?>">
 <meta name="csrf-token" content="<?= e(csrf_token()) ?>">
 <link rel="icon" href="<?= asset('img/favicon.png') ?>" type="image/png">
 <link rel="apple-touch-icon" href="<?= asset('img/favicon.png') ?>">
@@ -24,7 +24,7 @@ $naoLidas = $u ? mensagens_nao_lidas((int) $u['id']) : 0;
 <header class="topo">
   <div class="container topo-inner">
     <a class="logo" href="<?= url('index.php') ?>">
-      <img src="<?= asset('img/logo-topo.webp') ?>" alt="ADemóveis - Corretora de Imóveis" width="125" height="52">
+      <img src="<?= asset('img/logo-topo.webp') ?>" alt="Ademóveis - Corretora de Imóveis" width="125" height="52">
     </a>
     <button class="menu-toggle" aria-label="Abrir menu" data-toggle-menu>☰</button>
     <nav class="menu" id="menu">

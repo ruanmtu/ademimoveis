@@ -49,7 +49,7 @@ function mp_request(string $metodo, string $caminho, ?array $corpo = null): arra
 /** Cria a assinatura recorrente e devolve os dados (init_point = link de pagamento). */
 function mp_criar_assinatura(array $usuario, array $plano, float $valor, ?array $cupom = null, ?string $emailPagador = null): array
 {
-    $motivo = APP_NAME . ' - Plano ' . $plano['nome'];
+    $motivo = SITE_NOME . ' - Plano ' . $plano['nome'];
     if ($cupom) $motivo .= ' (cupom ' . $cupom['codigo'] . ')';
     $ref = 'usuario:' . $usuario['id'] . ':plano:' . $plano['id'] . ($cupom ? ':cupom:' . $cupom['id'] : '');
     return mp_request('POST', '/preapproval', [
@@ -116,7 +116,7 @@ function mp_sincronizar_assinatura(array $pre): void
 
         if ($ehNova && $u['mp_preapproval_id'] && $u['mp_preapproval_id'] !== $preId) {
             // nova assinatura confirmada: cancela a antiga para não cobrar duas vezes
-            try { mp_cancelar_assinatura($u['mp_preapproval_id']); } catch (RuntimeException $ex) { error_log('[ADemoveis] ' . $ex->getMessage()); }
+            try { mp_cancelar_assinatura($u['mp_preapproval_id']); } catch (RuntimeException $ex) { error_log('[Ademoveis] ' . $ex->getMessage()); }
         }
 
         $trocou = $ehNova || !$ehAtual || $u['assinatura_status'] !== 'ativa' || (int) $u['plano_id'] !== $ref['plano'];

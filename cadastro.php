@@ -16,7 +16,7 @@ if (is_post()) {
     $anunc = $d['tipo'] === 'anunciante';
 
     // Só é possível escolher cliente ou anunciante. Administrador é definido manualmente.
-    if (!in_array($d['tipo'], ['cliente', 'anunciante'], true)) $erros['tipo'] = 'Escolha como você vai usar a ADemóveis.';
+    if (!in_array($d['tipo'], ['cliente', 'anunciante'], true)) $erros['tipo'] = 'Escolha como você vai usar a Ademóveis.';
     if (mb_strlen($d['nome']) < 3) $erros['nome'] = 'Informe o nome completo.';
     if (!filter_var($d['email'], FILTER_VALIDATE_EMAIL)) $erros['email'] = 'Digite um e-mail válido, como voce@exemplo.com.';
     elseif (val('SELECT 1 FROM usuarios WHERE email = ?', [$d['email']])) $erros['email'] = 'Este e-mail já tem conta. Use a opção Entrar.';
@@ -71,7 +71,7 @@ if (is_post()) {
                 . ($creci ? ' Seu CRECI será conferido pela nossa equipe.' : ''));
             redirect('painel/assinatura.php');
         }
-        flash('sucesso', 'Conta criada! Bem-vindo(a) à ADemóveis.');
+        flash('sucesso', 'Conta criada! Bem-vindo(a) à Ademóveis.');
         redirect('index.php');
     }
 }
@@ -111,7 +111,7 @@ require __DIR__ . '/includes/header.php';
         <?= csrf_field() ?>
 
         <fieldset class="escolha-tipo">
-          <legend>Como você vai usar a ADemóveis?</legend>
+          <legend>Como você vai usar a Ademóveis?</legend>
           <label class="opcao-tipo">
             <input type="radio" name="tipo" value="cliente" <?= $d['tipo'] === 'cliente' ? 'checked' : '' ?>>
             <span><?= icone('busca', 22) ?><strong>Quero encontrar um imóvel</strong><small>Buscar, conversar com anunciantes e avaliar. Grátis.</small></span>

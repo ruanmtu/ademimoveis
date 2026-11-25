@@ -1,4 +1,4 @@
-# ADemóveis
+# Ademóveis
 
 Portal de imóveis em **PHP + MySQL** com três tipos de conta e um único login:
 
