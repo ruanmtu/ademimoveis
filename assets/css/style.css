@@ -740,3 +740,12 @@ label.check.check-creci { align-items: flex-start; margin: 0; cursor: pointer; }
 .email-mp input { max-width: 420px; }
 .email-mp .dica { margin: 8px 0 0; }
 [data-status-fotos] { margin: 8px 0 0; }
+
+/* Atendimento no rodapé */
+.rodape-col a { display: inline-flex; align-items: center; gap: 7px; }
+.rodape-col a .icone { color: var(--ouro); }
+.rodape-contato-nome { color: #f3e6d8; font-weight: 700; }
+.rodape-whatsapp { margin-top: 6px; padding: 9px 16px 9px 12px; border-radius: 999px; background: #1f9d55; color: #fff !important; font-weight: 700; box-shadow: 0 2px 0 #16743e; }
+.rodape-whatsapp .icone { color: #fff !important; }
+.rodape-whatsapp:hover { background: #1a8a4a; }
+.rodape-corretor small { color: #9c8877; font-size: .74rem; font-weight: 600; }

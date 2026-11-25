@@ -1,12 +1,13 @@
 </main>
-<?php /* Telefone, e-mail e endereço são FICTÍCIOS (provisórios): troque pelos reais antes do lançamento.
-         O corretor responsável e o CRECI são reais. */ ?>
+<?php /* Atendimento: Samuel Venâncio, (88) 98223-7038 (real). O e-mail ainda é provisório.
+         Corretor responsável (credenciamento, não é o contato de atendimento): Dawidson Oliveira Anfrisio, CRECI-CE 24199. */ ?>
 <footer class="rodape">
   <div class="container rodape-grade">
     <div class="rodape-marca">
       <img class="rodape-logo" src="<?= asset('img/logo-completa.webp') ?>" alt="Ademóveis - Corretora de Imóveis" width="150" height="104" loading="lazy">
       <p>Imóveis para comprar e alugar, direto com quem anuncia.</p>
       <div class="rodape-corretor">
+        <small>Corretor responsável</small>
         <strong>Dawidson Oliveira Anfrisio</strong>
         <span>Corretor de Imóveis</span>
         <span class="rodape-creci">CRECI-CE 24199</span>
@@ -25,10 +26,13 @@
       <a href="<?= url('termos.php') ?>">Termos de uso</a>
     </nav>
     <div class="rodape-col">
-      <h4>Contato</h4>
-      <a href="tel:+558530000000">(85) 3000-0000</a>
-      <a href="mailto:contato@ademoveis.com.br">contato@ademoveis.com.br</a>
-      <span>Av. Exemplo, 1000, Centro<br>Fortaleza - CE</span>
+      <h4>Atendimento</h4>
+      <span class="rodape-contato-nome">Samuel Venâncio</span>
+      <a href="tel:+5588982237038"><?= icone('telefone', 16) ?>(88) 98223-7038</a>
+      <a href="mailto:contato@ademoveis.com.br"><?= icone('email', 16) ?>contato@ademoveis.com.br</a>
+      <a class="rodape-whatsapp" href="<?= e(link_whatsapp('88982237038', 'Olá, Samuel! Vim pelo site da Ademóveis e gostaria de atendimento.')) ?>" target="_blank" rel="noopener" aria-label="Falar com Samuel Venâncio no WhatsApp">
+        <?= icone('whatsapp', 20) ?>Falar no WhatsApp
+      </a>
     </div>
   </div>
   <div class="container rodape-base">
