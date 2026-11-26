@@ -43,10 +43,15 @@ if ($participante && $msgs) {
     q('UPDATE mensagens SET lida = 1 WHERE conversa_id = ? AND remetente_id <> ? AND lida = 0', [$convId, $uid]);
 }
 
+// até qual das minhas mensagens a outra pessoa já leu (para o "visto")
+$lidasAte = (int) val('SELECT COALESCE(MAX(id), 0) FROM mensagens WHERE conversa_id = ? AND remetente_id = ? AND lida = 1', [$convId, $uid]);
+
 json_resposta(['mensagens' => array_map(fn ($m) => [
     'id'    => (int) $m['id'],
     'meu'   => (int) $m['remetente_id'] === $uid,
     'nome'  => $m['nome'],
     'texto' => $m['texto'],
     'hora'  => data_br($m['criado_em'], true),
-], $msgs)]);
+    'dia'   => date('Y-m-d', strtotime($m['criado_em'])),
+    'hm'    => date('H:i', strtotime($m['criado_em'])),
+], $msgs), 'lidas_ate' => $lidasAte, 'hoje' => date('Y-m-d')]);

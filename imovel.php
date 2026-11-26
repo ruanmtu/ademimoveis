@@ -127,9 +127,11 @@ require __DIR__ . '/includes/header.php';
           <a class="btn btn-bloco" href="<?= url('login.php') ?>">Entrar para conversar</a>
           <?php $_SESSION['voltar_para'] = $_SERVER['REQUEST_URI'] ?? ''; ?>
         <?php endif; ?>
-        <?php $zap = $dono ? null : link_whatsapp($anunc['whatsapp'], 'Olá! Vi o anúncio "' . $im['titulo'] . '" (nº ' . $id . ') na Ademimóveis e tenho interesse. Ele ainda está disponível? ' . url('imovel.php?id=' . $id)); ?>
+        <?php $zap = $dono ? null : whatsapp_do_imovel($im, $anunc['whatsapp'], 'Olá! Vi o anúncio "' . $im['titulo'] . '" (nº ' . $id . ') na Ademimóveis e tenho interesse. Ele ainda está disponível? ' . url('imovel.php?id=' . $id)); ?>
         <?php if ($zap): ?>
           <a class="btn btn-bloco btn-whatsapp" href="<?= e($zap) ?>" target="_blank" rel="noopener"><?= icone('whatsapp', 20) ?>Chamar no WhatsApp</a>
+        <?php elseif (!$dono && !(int) ($im['contato_whatsapp'] ?? 1)): ?>
+          <p class="aviso-so-chat"><?= icone('cadeado', 16) ?>Este anunciante atende somente pelo chat da Ademimóveis.</p>
         <?php endif; ?>
         <a class="link-perfil" href="<?= url('anunciante.php?id=' . (int) $anunc['id']) ?>">Ver perfil e outros imóveis</a>
       </div>

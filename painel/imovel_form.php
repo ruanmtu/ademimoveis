@@ -25,11 +25,15 @@ if ($id) {
     }
 }
 
+garantir_coluna_contato();
 $limiteFotos = limite_fotos_usuario($u);
+$zapConta = link_whatsapp($u['whatsapp']) ? $u['whatsapp'] : '';
 $campos = ['titulo', 'descricao', 'finalidade', 'tipo', 'preco', 'condominio', 'iptu', 'area', 'quartos', 'banheiros',
            'vagas', 'cep', 'endereco', 'bairro', 'cidade', 'estado', 'status'];
 $d = $im ?? array_fill_keys($campos, '') + ['status' => 'ativo', 'cidade' => $u['cidade'] ?? '', 'estado' => $u['estado'] ?? ''];
 $comMarcadas = $im ? comodidades_do_imovel($id) : [];
+$contatoZap = $im ? (int) ($im['contato_whatsapp'] ?? 1) : 1;
+$zapDigitado = '';
 $erros = [];
 
 if (is_post()) {
@@ -62,6 +66,13 @@ if (is_post()) {
     if ($d['cidade'] === '') $erros[] = 'Informe a cidade.';
     if (!in_array($d['estado'], estados(), true)) $erros[] = 'Escolha o estado.';
     if (!in_array($d['status'], ['ativo', 'pausado'], true)) $d['status'] = 'ativo';
+    // contato: WhatsApp no anúncio ou somente o chat da plataforma
+    $contatoZap = post('contato') === 'chat' ? 0 : 1;
+    $zapDigitado = mb_substr(post('whatsapp_novo'), 0, 20);
+    if ($contatoZap && !$zapConta) {
+        if ($zapDigitado === '') $erros[] = 'Informe seu WhatsApp para mostrar no anúncio, ou escolha "Somente pelo chat".';
+        elseif (!link_whatsapp($zapDigitado)) $erros[] = 'WhatsApp inválido. Use DDD + número, como (85) 98999-0000.';
+    }
 
     $novas = arquivos_multiplos('fotos');
     $jaTem = $im ? (int) val('SELECT COUNT(*) FROM imovel_fotos WHERE imovel_id = ?', [$id]) : 0;
@@ -74,6 +85,10 @@ if (is_post()) {
             min(255, max(0, (int) $d['quartos'])), min(255, max(0, (int) $d['banheiros'])), min(255, max(0, (int) $d['vagas'])),
             $d['cep'] ?: null, $d['endereco'] ?: null, $d['bairro'] ?: null, $d['cidade'], $d['estado'], $d['status'], agora(),
         ];
+        if ($contatoZap && !$zapConta) {
+            q('UPDATE usuarios SET whatsapp = ? WHERE id = ?', [$zapDigitado, $u['id']]);
+            $zapConta = $zapDigitado;
+        }
         if ($im) {
             q('UPDATE imoveis SET titulo=?, descricao=?, finalidade=?, tipo=?, preco=?, condominio=?, iptu=?, area=?, quartos=?,
                banheiros=?, vagas=?, cep=?, endereco=?, bairro=?, cidade=?, estado=?, status=?, atualizado_em=? WHERE id = ?',
@@ -85,6 +100,7 @@ if (is_post()) {
             $id = insert_id();
         }
 
+        q('UPDATE imoveis SET contato_whatsapp = ? WHERE id = ?', [$contatoZap, $id]);
         q('DELETE FROM imovel_comodidades WHERE imovel_id = ?', [$id]);
         foreach ($comMarcadas as $c) {
             q('INSERT INTO imovel_comodidades (imovel_id, comodidade) VALUES (?, ?)', [$id, $c]);
@@ -185,6 +201,37 @@ require __DIR__ . '/../includes/header.php';
           </select>
         </label>
       </div>
+    </div>
+
+    <div class="caixa" id="contato">
+      <h2>Como os interessados falam com você</h2>
+      <p class="dica">O chat da Ademimóveis fica sempre disponível. Escolha se o seu número de WhatsApp também aparece neste anúncio.</p>
+      <div class="opcoes-contato" data-opcoes-contato>
+        <label class="opcao-contato">
+          <input type="radio" name="contato" value="whatsapp" <?= $contatoZap ? 'checked' : '' ?>>
+          <span>
+            <span class="opcao-contato-icone opcao-zap"><?= icone('whatsapp', 22) ?></span>
+            <strong>Chat e WhatsApp</strong>
+            <small>O anúncio mostra um botão para chamar você no WhatsApp<?= $zapConta ? ', no número ' . e(formatar_telefone($zapConta)) : '' ?>. Resposta mais rápida para quem tem pressa.</small>
+          </span>
+        </label>
+        <label class="opcao-contato">
+          <input type="radio" name="contato" value="chat" <?= $contatoZap ? '' : 'checked' ?>>
+          <span>
+            <span class="opcao-contato-icone"><?= icone('cadeado', 22) ?></span>
+            <strong>Somente pelo chat</strong>
+            <small>Seu número fica escondido. Os interessados falam com você só pelo chat do site, e as mensagens chegam no seu painel.</small>
+          </span>
+        </label>
+      </div>
+      <?php if (!$zapConta): ?>
+        <div class="campo-zap-novo" data-campo-zap>
+          <label>Seu WhatsApp <input type="tel" name="whatsapp_novo" value="<?= e($zapDigitado) ?>" maxlength="20" placeholder="(00) 00000-0000" data-telefone></label>
+          <p class="dica">Fica salvo na sua conta. Você pode trocar depois em <a href="<?= url('conta.php') ?>">Minha conta</a>.</p>
+        </div>
+      <?php else: ?>
+        <p class="dica">Para trocar o número, vá em <a href="<?= url('conta.php') ?>">Minha conta</a>.</p>
+      <?php endif; ?>
     </div>
 
     <div class="caixa" id="fotos">

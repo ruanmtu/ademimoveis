@@ -227,6 +227,44 @@ function link_whatsapp(?string $numero, string $mensagem = ''): ?string
     return 'https://wa.me/' . $d . ($mensagem !== '' ? '?text=' . rawurlencode($mensagem) : '');
 }
 
+/** (85) 98999-0000 */
+function formatar_telefone(?string $t): string
+{
+    $d = preg_replace('/\D/', '', (string) $t);
+    if (strlen($d) > 11 && str_starts_with($d, '55')) $d = substr($d, 2);
+    if (strlen($d) === 11) return sprintf('(%s) %s-%s', substr($d, 0, 2), substr($d, 2, 5), substr($d, 7));
+    if (strlen($d) === 10) return sprintf('(%s) %s-%s', substr($d, 0, 2), substr($d, 2, 4), substr($d, 6));
+    return (string) $t;
+}
+
+/** Cria a coluna "contato_whatsapp" dos imóveis em bancos antigos (1 = mostra o WhatsApp, 0 = somente chat). */
+function garantir_coluna_contato(): void
+{
+    static $ok = false;
+    if ($ok) return;
+    try {
+        db()->query('SELECT contato_whatsapp FROM imoveis LIMIT 1');
+    } catch (PDOException) {
+        db()->exec('ALTER TABLE imoveis ADD COLUMN contato_whatsapp TINYINT(1) NOT NULL DEFAULT 1');
+    }
+    $ok = true;
+}
+
+/** Link do WhatsApp do anunciante para um imóvel, respeitando a escolha feita no anúncio. */
+function whatsapp_do_imovel(array $im, ?string $numero, string $mensagem): ?string
+{
+    garantir_coluna_contato();
+    if (isset($im['contato_whatsapp']) && !(int) $im['contato_whatsapp']) return null;
+    return link_whatsapp($numero, $mensagem);
+}
+
+/** O perfil só mostra o WhatsApp se o anunciante liberou o número em pelo menos um anúncio publicado. */
+function anunciante_mostra_whatsapp(int $anuncianteId): bool
+{
+    garantir_coluna_contato();
+    return (bool) val("SELECT 1 FROM imoveis WHERE anunciante_id = ? AND status = 'ativo' AND contato_whatsapp = 1 LIMIT 1", [$anuncianteId]);
+}
+
 function estrelas(float $nota): string
 {
     $cheias = (int) round($nota);

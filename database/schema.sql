@@ -114,6 +114,7 @@ CREATE TABLE IF NOT EXISTS imoveis (
   estado          CHAR(2)      NOT NULL,
   status          ENUM('ativo','pausado','removido') NOT NULL DEFAULT 'ativo',
   destaque        TINYINT(1)   NOT NULL DEFAULT 0,
+  contato_whatsapp TINYINT(1)  NOT NULL DEFAULT 1,
   visualizacoes   INT UNSIGNED NOT NULL DEFAULT 0,
   criado_em       DATETIME     NOT NULL,
   atualizado_em   DATETIME     NOT NULL,

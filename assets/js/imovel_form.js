@@ -81,3 +81,26 @@
     } catch (_) { /* sem internet ou serviço fora: o usuário preenche manualmente */ }
   });
 })();
+
+// Contato do anúncio: o campo de WhatsApp só aparece quando a opção "Chat e WhatsApp" está marcada
+(() => {
+  const opcoes = document.querySelector('[data-opcoes-contato]');
+  const campo = document.querySelector('[data-campo-zap]');
+  if (opcoes && campo) {
+    const atualizar = () => {
+      const zap = opcoes.querySelector('input[value=whatsapp]').checked;
+      campo.hidden = !zap;
+      campo.querySelector('input').required = zap;
+    };
+    opcoes.addEventListener('change', atualizar);
+    atualizar();
+  }
+  document.querySelectorAll('[data-telefone]').forEach((t) => {
+    t.addEventListener('input', () => {
+      const d = t.value.replace(/\D/g, '').slice(0, 11);
+      t.value = d.length > 10 ? d.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3')
+              : d.length > 6 ? d.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3')
+              : d.length > 2 ? d.replace(/^(\d{2})(\d*)/, '($1) $2') : d;
+    });
+  });
+})();
