@@ -105,6 +105,12 @@ if ($codigoCupom !== '') {
     }
 }
 
+// Plano escolhido em "Anunciar" antes do cadastro
+$planoSel = (int) get('plano');
+$planoSelNome = null;
+foreach ($planos as $p) if ((int) $p['id'] === $planoSel) $planoSelNome = $p['nome'];
+if (!$planoSelNome) $planoSel = 0;
+
 $titulo = 'Assinatura';
 $scripts = ['js/assinatura.js'];
 require __DIR__ . '/../includes/header.php';
@@ -112,6 +118,14 @@ require __DIR__ . '/../includes/header.php';
 <div class="container secao">
   <h1>Assinatura</h1>
   <?php require __DIR__ . '/_nav.php'; ?>
+
+  <?php if ($planoSel && !$emDia): ?>
+    <ol class="passos-anunciar" aria-label="Etapas para anunciar">
+      <li class="feito"><span>1</span>Plano</li>
+      <li class="feito"><span>2</span>Sua conta</li>
+      <li class="ativo" aria-current="step"><span>3</span>Pagamento</li>
+    </ol>
+  <?php endif; ?>
 
   <div class="caixa status-assinatura <?= $emDia ? 'ok' : 'pendente' ?>">
     <div><span>Situação</span><strong><?= e(status_assinatura_label($u['assinatura_status'])) ?><?= $emDia ? ' ✓' : '' ?></strong></div>
@@ -140,6 +154,7 @@ require __DIR__ . '/../includes/header.php';
   <div class="secao-titulo mt">
     <h2><?= $emDia ? 'Trocar de plano' : 'Escolha seu plano' ?></h2>
     <form method="get" class="form-cupom-aplicar">
+      <?php if ($planoSel): ?><input type="hidden" name="plano" value="<?= $planoSel ?>"><?php endif; ?>
       <input type="text" name="cupom" value="<?= e($codigoCupom) ?>" placeholder="Tem um cupom?" aria-label="Código do cupom" maxlength="40">
       <button class="btn btn-sm btn-claro">Aplicar</button>
     </form>
@@ -159,11 +174,12 @@ require __DIR__ . '/../includes/header.php';
         $vale = $cupomPrevia && (!$cupomPrevia['plano_id'] || (int) $cupomPrevia['plano_id'] === (int) $p['id']);
         $comDesc = $vale ? preco_com_cupom((float) $p['preco'], $cupomPrevia) : null;
         $atual = $emDia && (int) $u['plano_id'] === (int) $p['id'] && $u['assinatura_status'] === 'ativa'; ?>
-      <form method="post" class="caixa plano <?= $p['recomendado'] ? 'plano-recomendado' : '' ?> <?= $atual ? 'plano-atual' : '' ?>">
+      <?php $sel = $planoSel === (int) $p['id'] && !$atual; ?>
+      <form method="post" class="caixa plano <?= $p['recomendado'] ? 'plano-recomendado' : '' ?> <?= $atual ? 'plano-atual' : '' ?> <?= $sel ? 'plano-selecionado' : '' ?>"<?= $sel ? ' id="plano-escolhido" data-plano-escolhido' : '' ?>>
         <?= csrf_field() ?><input type="hidden" name="plano_id" value="<?= (int) $p['id'] ?>">
         <?php if ($vale): ?><input type="hidden" name="cupom" value="<?= e($cupomPrevia['codigo']) ?>"><?php endif; ?>
         <input type="hidden" name="email_mp" value="<?= e($_SESSION['email_mp'] ?? $u['email']) ?>" data-email-mp-copia>
-        <?php if ($atual): ?><span class="selo-plano selo-atual">Seu plano</span><?php elseif ($p['recomendado']): ?><span class="selo-plano">Mais escolhido</span><?php endif; ?>
+        <?php if ($atual): ?><span class="selo-plano selo-atual">Seu plano</span><?php elseif ($sel): ?><span class="selo-plano selo-escolhido">Sua escolha</span><?php elseif ($p['recomendado']): ?><span class="selo-plano">Mais escolhido</span><?php endif; ?>
         <h3><?= e($p['nome']) ?></h3>
         <?php if ($p['descricao']): ?><p class="dica"><?= e($p['descricao']) ?></p><?php endif; ?>
         <?php if ($comDesc !== null): ?>

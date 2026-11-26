@@ -52,7 +52,7 @@ $naoLidas = $u ? mensagens_nao_lidas((int) $u['id']) : 0;
         <a href="<?= url('conta.php') ?>" class="menu-usuario"><?= e(explode(' ', $u['nome'])[0]) ?></a>
         <a href="<?= url('logout.php') ?>" class="btn btn-sm btn-claro">Sair</a>
       <?php else: ?>
-        <a href="<?= url('cadastro.php?tipo=anunciante') ?>">Anuncie seu imóvel</a>
+        <a href="<?= url('anunciar.php') ?>">Anuncie seu imóvel</a>
         <a href="<?= url('login.php') ?>" class="btn btn-sm">Entrar</a>
       <?php endif; ?>
     </nav>

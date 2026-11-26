@@ -49,7 +49,8 @@
     const botao = form.querySelector('button[type=submit]');
     const textoPadrao = botao.textContent;
     const atualizar = () => {
-      const anunc = form.querySelector('[name=tipo]:checked')?.value === 'anunciante';
+      const tipo = form.querySelector('input[type=hidden][name=tipo]') || form.querySelector('[name=tipo]:checked');
+      const anunc = tipo?.value === 'anunciante';
       extras.forEach((x) => { x.hidden = !anunc; });
       botao.textContent = anunc ? botao.dataset.textoAnunciante : textoPadrao;
     };

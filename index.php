@@ -136,7 +136,7 @@ require __DIR__ . '/includes/header.php';
       <?php foreach ($destaques as $im) include __DIR__ . '/includes/card_imovel.php'; ?>
     </div>
   <?php else: ?>
-    <p class="vazio">Ainda não há imóveis anunciados. <a href="<?= url('cadastro.php?tipo=anunciante') ?>">Seja o primeiro a anunciar!</a></p>
+    <p class="vazio">Ainda não há imóveis anunciados. <a href="<?= url('anunciar.php') ?>">Seja o primeiro a anunciar!</a></p>
   <?php endif; ?>
 </section>
 
@@ -157,7 +157,7 @@ require __DIR__ . '/includes/header.php';
       <h2>Você é corretor ou proprietário?</h2>
       <p>Anuncie seus imóveis, receba mensagens de interessados e construa sua reputação com avaliações.</p>
     </div>
-    <a class="btn" href="<?= url('cadastro.php?tipo=anunciante') ?>">Quero anunciar</a>
+    <a class="btn" href="<?= url('anunciar.php') ?>">Quero anunciar</a>
   </div>
 </section>
 <?php require __DIR__ . '/includes/footer.php'; ?>

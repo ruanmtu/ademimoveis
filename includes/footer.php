@@ -21,8 +21,8 @@
     </nav>
     <nav class="rodape-col" aria-label="Para anunciantes">
       <h4>Anunciantes</h4>
-      <a href="<?= url('cadastro.php?tipo=anunciante') ?>">Anunciar imóvel</a>
-      <a href="<?= url('painel/assinatura.php') ?>">Planos</a>
+      <a href="<?= url('anunciar.php') ?>">Anunciar imóvel</a>
+      <a href="<?= url('anunciar.php') ?>">Planos</a>
       <a href="<?= url('termos.php') ?>">Termos de uso</a>
     </nav>
     <div class="rodape-col">
