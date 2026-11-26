@@ -49,13 +49,19 @@ $pg = paginar($total, 12);
 $imoveis = all("SELECT i.*, (SELECT arquivo FROM imovel_fotos fo WHERE fo.imovel_id = i.id ORDER BY ordem, id LIMIT 1) AS capa
                 $base ORDER BY $ordem LIMIT {$pg['limite']} OFFSET {$pg['offset']}", $params);
 
+// quantos filtros estão em uso (para o botão "Filtros" no celular)
+$nFiltros = count(array_filter([$f['finalidade'], $f['tipo'], $f['local'], $f['preco_min'], $f['preco_max'], $f['quartos'], $f['vagas'], $f['banheiros'], $f['q']], fn ($v) => $v !== '')) + count($comSel);
+
 $titulo = 'Buscar imóveis';
 require __DIR__ . '/includes/header.php';
 ?>
 <div class="container busca-layout">
-  <aside class="filtros">
+  <aside class="filtros" id="painel-filtros" data-filtros>
     <form method="get">
-      <h3>Filtrar</h3>
+      <div class="filtros-topo">
+        <h3>Filtrar</h3>
+        <button type="button" class="filtros-fechar" data-fechar-filtros aria-label="Fechar filtros">✕</button>
+      </div>
       <label>Finalidade
         <select name="finalidade">
           <option value="">Todas</option>
@@ -97,6 +103,9 @@ require __DIR__ . '/includes/header.php';
   </aside>
 
   <section class="resultados">
+    <button type="button" class="btn btn-claro btn-filtros-celular" data-abrir-filtros aria-controls="painel-filtros" aria-expanded="false">
+      <?= icone('filtros', 20) ?>Filtros<?php if ($nFiltros): ?> <span class="badge"><?= $nFiltros ?></span><?php endif; ?>
+    </button>
     <div class="resultados-topo">
       <p><strong><?= $total ?></strong> imóve<?= $total === 1 ? 'l encontrado' : 'is encontrados' ?></p>
       <form method="get" class="ordem">

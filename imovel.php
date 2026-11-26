@@ -44,10 +44,15 @@ require __DIR__ . '/includes/header.php';
     <div>
       <div class="galeria" data-galeria>
         <div class="galeria-principal">
-          <img src="<?= e(upload_url($fotos[0]['arquivo'] ?? null)) ?>" alt="<?= e($im['titulo']) ?>" data-galeria-principal>
+          <img src="<?= e(upload_url($fotos[0]['arquivo'] ?? null)) ?>" alt="<?= e($im['titulo']) ?>" data-galeria-principal
+               data-sem-foto="<?= $fotos ? '0' : '1' ?>"<?= $fotos ? ' title="Clique para ampliar"' : '' ?>>
           <?php if (count($fotos) > 1): ?>
-            <button class="galeria-nav ant" data-galeria-ant aria-label="Foto anterior">‹</button>
-            <button class="galeria-nav prox" data-galeria-prox aria-label="Próxima foto">›</button>
+            <button type="button" class="galeria-nav ant" data-galeria-ant aria-label="Foto anterior">‹</button>
+            <button type="button" class="galeria-nav prox" data-galeria-prox aria-label="Próxima foto">›</button>
+          <?php endif; ?>
+          <?php if ($fotos): ?>
+            <span class="galeria-contador" data-galeria-contador>1 / <?= count($fotos) ?></span>
+            <button type="button" class="galeria-ampliar" data-galeria-ampliar aria-label="Ampliar fotos em tela cheia"><?= icone('area', 18) ?><span>Ampliar</span></button>
           <?php endif; ?>
         </div>
         <?php if (count($fotos) > 1): ?>
@@ -94,7 +99,7 @@ require __DIR__ . '/includes/header.php';
         <?php if ($im['iptu']): ?><p class="linha-valor"><span>IPTU</span><span><?= dinheiro($im['iptu']) ?></span></p><?php endif; ?>
       </div>
 
-      <div class="caixa anunciante-box">
+      <div class="caixa anunciante-box" id="contato">
         <a class="anunciante-mini" href="<?= url('anunciante.php?id=' . (int) $anunc['id']) ?>">
           <img class="avatar" src="<?= e(upload_url($anunc['foto'], 'assets/img/avatar.svg')) ?>" alt="">
           <div>
@@ -138,4 +143,11 @@ require __DIR__ . '/includes/header.php';
     </div>
   <?php endif; ?>
 </div>
+<?php if (!$dono): ?>
+<div class="barra-contato" aria-label="Contato rápido">
+  <div class="barra-contato-preco"><?= dinheiro($im['preco']) ?><?= $im['finalidade'] !== 'venda' ? '<small>/mês</small>' : '' ?></div>
+  <a class="btn btn-sm" href="#contato">Conversar</a>
+  <?php if (!empty($zap)): ?><a class="btn btn-sm btn-whatsapp" href="<?= e($zap) ?>" target="_blank" rel="noopener" aria-label="Chamar no WhatsApp"><?= icone('whatsapp', 20) ?></a><?php endif; ?>
+</div>
+<?php endif; ?>
 <?php require __DIR__ . '/includes/footer.php'; ?>
