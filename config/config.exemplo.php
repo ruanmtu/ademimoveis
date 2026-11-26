@@ -1,14 +1,14 @@
 <?php
 /**
- * Ademóveis - Configurações
+ * Ademimóveis - Configurações
  * Copie este arquivo para "config.php" e preencha com seus dados.
  */
 
 // Nome exibido no site
-define('APP_NAME', 'Ademóveis');
+define('APP_NAME', 'Ademimóveis');
 
 // Endereço do site, SEM barra no final. Deixe vazio ('') para detectar automaticamente.
-// Exemplos: 'https://www.ademoveis.com.br'  ou  'http://localhost/ademoveis'
+// Exemplos: 'https://www.ademimoveis.com.br'  ou  'http://localhost/ademimoveis'
 define('APP_URL', '');
 
 // true mostra erros detalhados (use só no desenvolvimento)
@@ -34,9 +34,9 @@ define('ASSINATURA_TOLERANCIA_DIAS', 3);
 
 // ---------------- E-mail (recuperação de senha) ----------------
 // Remetente dos e-mails. Na Hostinger, use um e-mail do seu domínio criado no hPanel
-// (ex.: nao-responda@ademoveis.com.br). Vazio = nao-responda@<domínio do site>.
+// (ex.: nao-responda@ademimoveis.com.br). Vazio = nao-responda@<domínio do site>.
 define('MAIL_FROM', '');
-define('MAIL_FROM_NOME', 'Ademóveis');
+define('MAIL_FROM_NOME', 'Ademimóveis');
 
 // ---------------- Uploads ----------------
 define('UPLOAD_MAX_MB', 25);         // tamanho máximo por foto (mínimo 25)

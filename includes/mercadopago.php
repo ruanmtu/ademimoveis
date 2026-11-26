@@ -116,7 +116,7 @@ function mp_sincronizar_assinatura(array $pre): void
 
         if ($ehNova && $u['mp_preapproval_id'] && $u['mp_preapproval_id'] !== $preId) {
             // nova assinatura confirmada: cancela a antiga para não cobrar duas vezes
-            try { mp_cancelar_assinatura($u['mp_preapproval_id']); } catch (RuntimeException $ex) { error_log('[Ademoveis] ' . $ex->getMessage()); }
+            try { mp_cancelar_assinatura($u['mp_preapproval_id']); } catch (RuntimeException $ex) { error_log('[Ademimoveis] ' . $ex->getMessage()); }
         }
 
         $trocou = $ehNova || !$ehAtual || $u['assinatura_status'] !== 'ativa' || (int) $u['plano_id'] !== $ref['plano'];

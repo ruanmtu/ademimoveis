@@ -61,7 +61,7 @@ require __DIR__ . '/includes/header.php';
         <?php if ($a['creci'] && $a['creci_status'] === 'verificado'): ?><li class="selo-creci"><?= icone('verificado', 16) ?>CRECI-<?= e($a['creci_uf']) ?> <?= e($a['creci']) ?> verificado</li>
         <?php elseif ($a['creci']): ?><li>CRECI-<?= e($a['creci_uf']) ?> <?= e($a['creci']) ?></li><?php endif; ?>
         <?php if ($a['cidade']): ?><li><?= e($a['cidade']) ?><?= $a['estado'] ? ' - ' . e($a['estado']) : '' ?></li><?php endif; ?>
-        <li>Na Ademóveis desde <?= date('m/Y', strtotime($a['criado_em'])) ?></li>
+        <li>Na Ademimóveis desde <?= date('m/Y', strtotime($a['criado_em'])) ?></li>
         <li><?= count($imoveis) ?> imóve<?= count($imoveis) === 1 ? 'l' : 'is' ?> anunciado<?= count($imoveis) === 1 ? '' : 's' ?></li>
       </ul>
       <?php if ($a['bio']): ?><p class="bio"><?= nl2br(e($a['bio'])) ?></p><?php endif; ?>
@@ -80,7 +80,7 @@ require __DIR__ . '/includes/header.php';
         <?php $_SESSION['voltar_para'] = $_SERVER['REQUEST_URI'] ?? ''; ?>
         <a class="btn" href="<?= url('login.php') ?>">Entrar para conversar</a>
       <?php endif; ?>
-      <?php if (!$souEu && ($zap = link_whatsapp($a['whatsapp'], 'Olá, ' . explode(' ', $a['nome'])[0] . '! Vi seu perfil na Ademóveis e gostaria de saber mais sobre seus imóveis.'))): ?>
+      <?php if (!$souEu && ($zap = link_whatsapp($a['whatsapp'], 'Olá, ' . explode(' ', $a['nome'])[0] . '! Vi seu perfil na Ademimóveis e gostaria de saber mais sobre seus imóveis.'))): ?>
         <a class="btn btn-whatsapp" target="_blank" rel="noopener" href="<?= e($zap) ?>"><?= icone('whatsapp', 20) ?>WhatsApp</a>
       <?php endif; ?>
     </div>

@@ -1,5 +1,5 @@
 -- =========================================================
---  Ademóveis - Estrutura do banco de dados (MySQL / MariaDB)
+--  Ademimóveis - Estrutura do banco de dados (MySQL / MariaDB)
 --  Importe este arquivo pelo phpMyAdmin (aba "Importar").
 -- =========================================================
 

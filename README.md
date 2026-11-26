@@ -1,4 +1,4 @@
-# Ademóveis
+# Ademimóveis
 
 Portal de imóveis em **PHP + MySQL** com três tipos de conta e um único login:
 
@@ -16,11 +16,11 @@ Portal de imóveis em **PHP + MySQL** com três tipos de conta e um único login
 
 ## Instalação
 
-1. **Copie a pasta** `ademoveis` para o servidor. No XAMPP, a pasta é `C:\xampp\htdocs\ademoveis`.
+1. **Copie a pasta** `ademimoveis` para o servidor. No XAMPP, a pasta é `C:\xampp\htdocs\ademimoveis`.
 2. **Crie o banco no phpMyAdmin:** abra a aba **Importar**, escolha `database/schema.sql` e clique em Executar. O banco `ademoveis` será criado com todas as tabelas e um plano inicial de R$ 49,90, que você pode alterar depois.
    *Em hospedagem compartilhada, onde o nome do banco já vem definido:* crie o banco pelo painel da hospedagem, apague as linhas `CREATE DATABASE` e `USE` do arquivo e importe dentro desse banco.
 3. **Configure:** copie `config/config.exemplo.php` para `config/config.php` e preencha:
-   - `APP_URL`: o endereço do site, por exemplo `http://localhost/ademoveis`
+   - `APP_URL`: o endereço do site, por exemplo `http://localhost/ademimoveis`
    - `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS`: os dados do banco
 4. **Crie o administrador:** acesse `SEU-SITE/instalar.php`, preencha nome, e-mail e senha. Esse formulário só funciona enquanto não existir nenhum administrador. **Depois, apague o arquivo `instalar.php`.**
 5. Garanta que a pasta `uploads/` tenha **permissão de escrita** pelo servidor (755 ou 775).
@@ -73,7 +73,7 @@ Se você já tinha importado o `schema.sql` de uma versão anterior, importe no 
 
 Em *Entrar → Esqueceu a senha?*, a pessoa recebe por e-mail um link que vale por 30 minutos e só pode ser usado uma vez (o banco guarda só o hash do link). O e-mail sai pela função `mail()` da hospedagem, como no BV Fotos.
 
-Na Hostinger, crie um e-mail do seu domínio no hPanel (ex.: `nao-responda@ademoveis.com.br`) e coloque em `MAIL_FROM` no `config/config.php`. Sem isso, o site usa `nao-responda@` + o domínio atual, que pode cair no spam ou ser recusado.
+Na Hostinger, crie um e-mail do seu domínio no hPanel (ex.: `nao-responda@ademimoveis.com.br`) e coloque em `MAIL_FROM` no `config/config.php`. Sem isso, o site usa `nao-responda@` + o domínio atual, que pode cair no spam ou ser recusado.
 
 ## Estrutura
 

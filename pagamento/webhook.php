@@ -46,7 +46,7 @@ try {
     http_response_code(200);
     echo 'ok';
 } catch (Throwable $ex) {
-    error_log('[Ademoveis webhook] ' . $ex->getMessage());
+    error_log('[Ademimoveis webhook] ' . $ex->getMessage());
     http_response_code(500); // o MP tenta novamente depois
     echo 'erro';
 }

@@ -35,8 +35,8 @@ if (session_status() !== PHP_SESSION_ACTIVE && PHP_SAPI !== 'cli') {
 
 define('UPLOAD_PATH', ROOT_PATH . '/uploads');
 
-// Nome do site. Corrige automaticamente a grafia antiga "ADemóveis" de config.php já instalados.
-define('SITE_NOME', in_array(APP_NAME, ['ADemóveis', 'ADemoveis', 'ADEMÓVEIS', ''], true) ? 'Ademóveis' : APP_NAME);
+// Nome do site. Corrige automaticamente grafias antigas ("ADemóveis", "Ademóveis") de config.php já instalados.
+define('SITE_NOME', in_array(APP_NAME, ['ADemóveis', 'ADemoveis', 'ADEMÓVEIS', 'Ademóveis', 'Ademoveis', ''], true) ? 'Ademimóveis' : APP_NAME);
 
 /**
  * Endereço do site. Se APP_URL estiver vazio no config.php, é detectado automaticamente

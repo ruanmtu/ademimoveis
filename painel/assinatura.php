@@ -8,7 +8,7 @@ if (get('retorno') && mp_configurado() && ($u['mp_preapproval_novo'] || $u['mp_p
     try {
         mp_sincronizar_assinatura(mp_buscar_assinatura($u['mp_preapproval_novo'] ?: $u['mp_preapproval_id']));
     } catch (RuntimeException $ex) {
-        error_log('[Ademoveis] ' . $ex->getMessage());
+        error_log('[Ademimoveis] ' . $ex->getMessage());
     }
     $u = one('SELECT * FROM usuarios WHERE id = ?', [$u['id']]);
     flash(anunciante_em_dia($u) && !$u['mp_preapproval_novo'] ? 'sucesso' : 'aviso', anunciante_em_dia($u) && !$u['mp_preapproval_novo']
@@ -43,7 +43,7 @@ if (is_post()) {
             if ($cupom && $valor < 1) {
                 // cupom que zera a cobrança: libera direto, sem Mercado Pago
                 if ($temMpAtiva && mp_configurado()) {
-                    try { mp_cancelar_assinatura($u['mp_preapproval_id']); } catch (RuntimeException $ex) { error_log('[Ademoveis] ' . $ex->getMessage()); }
+                    try { mp_cancelar_assinatura($u['mp_preapproval_id']); } catch (RuntimeException $ex) { error_log('[Ademimoveis] ' . $ex->getMessage()); }
                 }
                 liberar_periodo_gratis($u, $plano, $cupom);
                 $u2 = one('SELECT * FROM usuarios WHERE id = ?', [$u['id']]);

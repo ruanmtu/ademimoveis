@@ -38,7 +38,7 @@ require __DIR__ . '/includes/header.php';
   <?php else: ?>
     <form method="post" class="caixa auth-caixa">
       <h1>Criar administrador</h1>
-      <p class="sub">Primeiro acesso da Ademóveis.</p>
+      <p class="sub">Primeiro acesso da Ademimóveis.</p>
       <?php if ($erros): ?><div class="alerta alerta-erro"><?= implode('<br>', array_map('e', $erros)) ?></div><?php endif; ?>
       <?= csrf_field() ?>
       <label>Nome <input type="text" name="nome" required></label>
