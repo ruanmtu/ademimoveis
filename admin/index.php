@@ -28,6 +28,12 @@ require __DIR__ . '/../includes/header.php';
   <?php if (is_file(ROOT_PATH . '/instalar.php')): ?>
     <div class="alerta alerta-erro">Segurança: apague o arquivo <strong>instalar.php</strong> do servidor.</div>
   <?php endif; ?>
+  <?php if (!conexao_https() && !host_local()): ?>
+    <div class="alerta alerta-erro">Segurança: o site está abrindo sem HTTPS (sem cadeado). Veja <a href="<?= url('admin/seguranca.php') ?>">Segurança</a>.</div>
+  <?php endif; ?>
+  <?php if (APP_DEBUG): ?>
+    <div class="alerta alerta-erro">Segurança: o modo de depuração (APP_DEBUG) está ligado no config.php. Desligue em produção.</div>
+  <?php endif; ?>
   <?php if (MP_ACCESS_TOKEN === ''): ?>
     <div class="alerta alerta-aviso">Mercado Pago não configurado. Anunciantes só podem ser ativados manualmente em <a href="<?= url('admin/usuarios.php?tipo=anunciante') ?>">Usuários</a>.</div>
   <?php endif; ?>

@@ -61,7 +61,7 @@ require __DIR__ . '/includes/header.php';
           <?php if ($u): ?>
             <button class="btn btn-bloco btn-claro" type="button" disabled>Escolher <?= e($p['nome']) ?></button>
           <?php else: ?>
-            <a class="btn btn-bloco <?= $p['recomendado'] ? '' : 'btn-claro' ?>" href="<?= $link ?>">Escolher <?= e($p['nome']) ?></a>
+            <a class="btn btn-bloco <?= $p['recomendado'] ? '' : 'btn-claro' ?>" href="<?= e($link) ?>">Escolher <?= e($p['nome']) ?></a>
           <?php endif; ?>
         </article>
       <?php endforeach; ?>

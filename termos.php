@@ -15,6 +15,6 @@ require __DIR__ . '/includes/header.php';
   <h2>4. Conduta</h2>
   <p>É proibido publicar conteúdo falso, ofensivo ou ilegal, e usar o chat para spam. A administração pode remover conteúdos e bloquear contas que descumprirem estes termos.</p>
   <h2>5. Privacidade</h2>
-  <p>Os dados pessoais são usados apenas para o funcionamento da plataforma, conforme a LGPD (Lei 13.709/2018).</p>
+  <p>Os dados pessoais são usados apenas para o funcionamento da plataforma, conforme a LGPD (Lei 13.709/2018). Veja os detalhes em <a href="<?= url('privacidade.php') ?>">Privacidade e segurança</a>.</p>
 </div>
 <?php require __DIR__ . '/includes/footer.php'; ?>

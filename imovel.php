@@ -124,7 +124,7 @@ require __DIR__ . '/includes/header.php';
           </form>
         <?php else: ?>
           <p>Entre na sua conta para conversar com o anunciante.</p>
-          <a class="btn btn-bloco" href="<?= url('login.php') ?>" onclick="return true">Entrar para conversar</a>
+          <a class="btn btn-bloco" href="<?= url('login.php') ?>">Entrar para conversar</a>
           <?php $_SESSION['voltar_para'] = $_SERVER['REQUEST_URI'] ?? ''; ?>
         <?php endif; ?>
         <?php $zap = $dono ? null : link_whatsapp($anunc['whatsapp'], 'Olá! Vi o anúncio "' . $im['titulo'] . '" (nº ' . $id . ') na Ademimóveis e tenho interesse. Ele ainda está disponível? ' . url('imovel.php?id=' . $id)); ?>

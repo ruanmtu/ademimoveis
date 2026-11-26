@@ -1,0 +1,8 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /painel/
+Disallow: /chat/
+Disallow: /pagamento/
+Disallow: /conta.php
+Disallow: /redefinir-senha.php
+Disallow: /instalar.php

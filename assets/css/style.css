@@ -917,3 +917,35 @@ html.lb-aberto, html.lb-aberto body { overflow: hidden; }
   .passos-anunciar li + li::before { width: 8px; }
   .passos-anunciar span { width: 24px; height: 24px; font-size: .78rem; }
 }
+
+/* ---------- Admin: segurança ---------- */
+.verificacao { list-style: none; padding: 6px 22px; display: grid; }
+.verificacao li { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; }
+.verificacao li + li { border-top: 1px solid var(--linha); }
+.verificacao strong { display: block; color: var(--ipe); }
+.verificacao small { color: var(--texto-suave); }
+.verificacao-icone { flex-shrink: 0; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 800; font-size: .9rem; }
+.verificacao .ok .verificacao-icone { background: var(--folha-clara); color: var(--folha); }
+.verificacao .falta .verificacao-icone { background: #fdf4e4; color: var(--aviso); border: 1.5px solid var(--ouro); }
+.form-filtro-curto { display: flex; gap: 8px; align-items: center; }
+.form-filtro-curto select { width: auto; }
+.tabela .linha-alerta td:nth-child(2) { color: var(--erro); font-weight: 700; }
+
+/* ---------- Selo de site seguro (rodapé) ---------- */
+.rodape a.selo-seguro { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 8px 14px 8px 10px; width: fit-content;
+  border: 1px solid rgba(233,162,59,.35); border-radius: 12px; background: linear-gradient(180deg, rgba(233,162,59,.09), rgba(233,162,59,.02)); }
+.rodape a.selo-seguro:hover { border-color: var(--ouro); background: rgba(233,162,59,.12); }
+.selo-seguro-escudo { flex-shrink: 0; }
+.selo-seguro span { display: grid; line-height: 1.25; }
+.selo-seguro strong { font-family: var(--fonte-titulo); color: #f3e6d8; font-size: .95rem; }
+.selo-seguro small { color: #bba795; font-size: .74rem; }
+
+/* ---------- Página de privacidade ---------- */
+.politica-indice { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0 8px; }
+.politica-indice a { padding: 6px 12px; border-radius: 999px; background: var(--areia); color: var(--ipe-2); font-size: .88rem; font-weight: 600; text-decoration: none; }
+.politica-indice a:hover { background: var(--linha); }
+.politica h2 { scroll-margin-top: 90px; }
+.politica li { margin-bottom: 8px; line-height: 1.6; }
+.politica-protecoes { list-style: none; padding: 0; }
+.politica-protecoes li { position: relative; padding-left: 30px; }
+.politica-protecoes li::before { content: ""; position: absolute; left: 4px; top: 8px; width: 12px; height: 7px; border-left: 2.5px solid var(--folha); border-bottom: 2.5px solid var(--folha); transform: rotate(-45deg); }

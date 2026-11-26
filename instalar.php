@@ -16,6 +16,7 @@ if (!$existeAdmin && is_post()) {
     if (mb_strlen($nome) < 3) $erros[] = 'Informe o nome.';
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $erros[] = 'E-mail inválido.';
     if (strlen($senha) < 10) $erros[] = 'Use uma senha com pelo menos 10 caracteres.';
+    elseif ($probSenha = problema_senha($senha, $email, $nome)) $erros[] = $probSenha;
     if (!$erros && val('SELECT 1 FROM usuarios WHERE email = ?', [$email])) $erros[] = 'E-mail já cadastrado.';
     if (!$erros) {
         q("INSERT INTO usuarios (tipo, nome, email, senha_hash, criado_em) VALUES ('admin', ?, ?, ?, ?)",

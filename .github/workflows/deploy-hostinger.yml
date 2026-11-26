@@ -1,7 +1,8 @@
 # Publica o site na Hostinger por FTP sempre que houver mudança na branch main.
 # Segredos usados (Settings → Secrets and variables → Actions): FTP_SERVER, FTP_USERNAME, FTP_PASSWORD
 # O usuário de FTP já entra na public_html, por isso server-dir é "./".
-# Envia só os arquivos que mudaram. NUNCA mexe em: config/config.php, uploads/ (fotos) e instalar.php.
+# Envia só os arquivos que mudaram. NUNCA mexe em: config/config.php, fotos enviadas (uploads/*/) e instalar.php.
+# A conexão FTP é criptografada (FTPS), então a senha não trafega aberta pela internet.
 name: Publicar na Hostinger
 
 on:
@@ -30,6 +31,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           port: 21
+          protocol: ftps
           server-dir: ./
           exclude: |
             **/.git*
@@ -38,4 +40,5 @@ jobs:
             README.md
             instalar.php
             config/config.php
-            uploads/**
+            uploads/*/**
+            uploads/.gitkeep

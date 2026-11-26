@@ -9,22 +9,28 @@ if (is_post()) {
     csrf_check();
     $email = mb_strtolower(post('email'));
     $senha = (string) ($_POST['senha'] ?? '');
-    if (login_bloqueado()) {
-        $erro = 'Muitas tentativas. Aguarde 10 minutos e tente novamente.';
+    if ($email === '' || strlen($senha) > 200) {
+        $erro = 'E-mail ou senha incorretos. Confira e tente de novo.';
+    } elseif (login_bloqueado($email)) {
+        $erro = 'Muitas tentativas erradas. Por segurança, aguarde 15 minutos e tente de novo, ou use "Esqueceu a senha?".';
+        registrar_evento('login_bloqueado', 'email:' . $email, null, 'E-mail: ' . $email);
     } else {
         $u = one('SELECT * FROM usuarios WHERE email = ?', [$email]);
-        if ($u && password_verify($senha, $u['senha_hash'])) {
+        // confere a senha mesmo quando o e-mail não existe, para o tempo de resposta não revelar quem tem conta
+        $senhaOk = password_verify($senha, $u['senha_hash'] ?? '$2y$10$xN7k3o6EUPegFyGFZNJmhOZVcZKJgt.vmY89qNBEy.cSaYP1hn/uy');
+        if ($u && $senhaOk) {
             if ($u['status'] !== 'ativo') {
                 $erro = 'Sua conta está bloqueada. Fale com o suporte para entender o motivo.';
             } else {
                 if (password_needs_rehash($u['senha_hash'], PASSWORD_DEFAULT)) {
                     q('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [password_hash($senha, PASSWORD_DEFAULT), $u['id']]);
                 }
+                limpar_falhas_login($email);
                 entrar((int) $u['id']);
                 redirect(destino_pos_login($u));
             }
         } else {
-            registrar_falha_login();
+            registrar_falha_login($email, $u ? (int) $u['id'] : null);
             $erro = 'E-mail ou senha incorretos. Confira e tente de novo.';
         }
     }

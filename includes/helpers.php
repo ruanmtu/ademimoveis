@@ -41,12 +41,14 @@ function hoje(): string  { return date('Y-m-d'); }
 function post(string $k, $padrao = '')
 {
     $v = $_POST[$k] ?? $padrao;
+    if (is_array($v) && !is_array($padrao)) return $padrao; // campo enviado como lista onde se espera texto
     return is_string($v) ? trim($v) : $v;
 }
 
 function get(string $k, $padrao = '')
 {
     $v = $_GET[$k] ?? $padrao;
+    if (is_array($v) && !is_array($padrao)) return $padrao;
     return is_string($v) ? trim($v) : $v;
 }
 

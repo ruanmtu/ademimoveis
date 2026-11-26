@@ -30,7 +30,10 @@ if (is_post()) {
     if (mb_strlen($d['nome']) < 3) $erros['nome'] = 'Informe o nome completo.';
     if (!filter_var($d['email'], FILTER_VALIDATE_EMAIL)) $erros['email'] = 'Digite um e-mail válido, como voce@exemplo.com.';
     elseif (val('SELECT 1 FROM usuarios WHERE email = ?', [$d['email']])) $erros['email'] = 'Este e-mail já tem conta. Use a opção Entrar.';
-    if (strlen($senha) < 8) $erros['senha'] = 'Use pelo menos 8 caracteres.';
+    foreach (['nome' => 120, 'email' => 190, 'telefone' => 20, 'documento' => 20, 'creci' => 20, 'cidade' => 120] as $k => $max) {
+        $d[$k] = mb_substr((string) $d[$k], 0, $max);
+    }
+    if ($probSenha = problema_senha($senha, $d['email'], $d['nome'])) $erros['senha'] = $probSenha;
     elseif ($senha !== $senha2) $erros['senha2'] = 'As duas senhas estão diferentes.';
     if ($d['estado'] !== '' && !in_array($d['estado'], estados(), true)) $erros['estado'] = 'Estado inválido.';
     if (empty($_POST['termos'])) $erros['termos'] = 'Para criar a conta, aceite os termos de uso.';
@@ -66,6 +69,11 @@ if (is_post()) {
         }
     }
 
+    // no máximo 5 contas novas por hora a partir do mesmo endereço de internet (evita robôs criando contas falsas)
+    if (!$erros && limite_excedido('cadastro', 'ip:' . ip_cliente(), defined('LIMITE_CADASTROS_HORA') ? (int) LIMITE_CADASTROS_HORA : 5, 3600)) {
+        $erros['geral'] = 'Muitas contas criadas a partir desta conexão na última hora. Tente de novo mais tarde.';
+    }
+
     if (!$erros) {
         q('INSERT INTO usuarios (tipo, nome, email, senha_hash, telefone, whatsapp, documento_tipo, documento, creci, creci_uf, creci_status,
              cidade, estado, criado_em) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)', [
@@ -75,7 +83,9 @@ if (is_post()) {
             $creci, $creci ? $d['creci_uf'] : null, $creci ? 'pendente' : 'nao_informado',
             $d['cidade'] ?: null, $d['estado'] ?: null, agora(),
         ]);
-        entrar(insert_id());
+        $novoId = insert_id();
+        registrar_evento('cadastro', 'ip:' . ip_cliente(), $novoId, $d['tipo']);
+        entrar($novoId);
         if ($anunc) {
             $creciMsg = $creci ? ' Seu CRECI será conferido pela nossa equipe.' : '';
             if ($planoEscolhido) {
@@ -131,7 +141,7 @@ require __DIR__ . '/includes/header.php';
       <form method="post" novalidate data-cadastro data-form-auth>
         <h1><?= $planoEscolhido ? 'Crie sua conta de anunciante' : 'Criar conta' ?></h1>
         <p class="sub">Já tem conta? <a href="<?= url('login.php') ?>">Entrar</a></p>
-        <?php if ($erros): ?><div class="alerta alerta-erro" role="alert">Confira os campos marcados abaixo.</div><?php endif; ?>
+        <?php if ($erros): ?><div class="alerta alerta-erro" role="alert"><?= e($erros['geral'] ?? 'Confira os campos marcados abaixo.') ?></div><?php endif; ?>
         <?= csrf_field() ?>
 
         <?php if ($planoEscolhido): $perE = (int) $planoEscolhido['periodicidade_meses']; ?>

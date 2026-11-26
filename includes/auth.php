@@ -9,9 +9,16 @@ function usuario(): ?array
     if (!empty($_SESSION['uid'])) {
         $u = one('SELECT * FROM usuarios WHERE id = ?', [(int) $_SESSION['uid']]);
         if ($u && $u['status'] === 'ativo') {
-            $cache = $u;
+            // senha trocada em outro lugar: esta sessão deixa de valer
+            if (!isset($_SESSION['sv'])) $_SESSION['sv'] = versao_sessao($u);
+            if (hash_equals((string) $_SESSION['sv'], versao_sessao($u))) {
+                $cache = $u;
+                $_SESSION['admin'] = $u['tipo'] === 'admin';
+            } else {
+                unset($_SESSION['uid'], $_SESSION['sv']);
+            }
         } else {
-            unset($_SESSION['uid']);
+            unset($_SESSION['uid'], $_SESSION['sv']);
         }
     }
     return $cache;
@@ -27,7 +34,13 @@ function entrar(int $id): void
 {
     session_regenerate_id(true);
     $_SESSION['uid'] = $id;
+    $_SESSION['ultimo_uso'] = time();
+    $u = one('SELECT id, tipo, senha_hash FROM usuarios WHERE id = ?', [$id]);
+    $_SESSION['sv'] = $u ? versao_sessao($u) : '';
+    $_SESSION['admin'] = ($u['tipo'] ?? '') === 'admin';
+    unset($_SESSION['csrf']); // novo token de formulário a cada login
     q('UPDATE usuarios SET ultimo_login = ? WHERE id = ?', [agora(), $id]);
+    registrar_evento('login_ok', '', $id);
 }
 
 function sair(): void
@@ -42,6 +55,7 @@ function sair(): void
 
 function exigir_login(): array
 {
+    pagina_privada();
     $u = usuario();
     if (!$u) {
         $_SESSION['voltar_para'] = $_SERVER['REQUEST_URI'] ?? '';
@@ -86,19 +100,32 @@ function mensagens_nao_lidas(int $uid): int
                      [$uid, $uid, $uid]);
 }
 
-// Proteção simples contra tentativa de senha em massa (por sessão + IP)
-function login_bloqueado(): bool
+/** Atualiza a sessão atual depois que o próprio usuário troca a senha (as outras sessões caem). */
+function renovar_sessao_apos_senha(int $id): void
 {
-    $chave = 'login_falhas_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
-    $f = $_SESSION[$chave] ?? ['n' => 0, 't' => 0];
-    if ($f['n'] >= 5 && time() - $f['t'] < 600) return true;
-    if (time() - $f['t'] >= 600) $_SESSION[$chave] = ['n' => 0, 't' => time()];
-    return false;
+    session_regenerate_id(true);
+    $u = one('SELECT id, senha_hash FROM usuarios WHERE id = ?', [$id]);
+    if ($u) $_SESSION['sv'] = versao_sessao($u);
 }
 
-function registrar_falha_login(): void
+// Limite de tentativas de login (gravado no banco: não adianta apagar cookies ou trocar de navegador)
+const LOGIN_MAX_POR_EMAIL = 5;   // erros seguidos na mesma conta
+const LOGIN_MAX_POR_IP = 20;     // erros do mesmo endereço de internet
+const LOGIN_JANELA = 900;        // 15 minutos
+
+function login_bloqueado(string $email): bool
 {
-    $chave = 'login_falhas_' . md5($_SERVER['REMOTE_ADDR'] ?? '');
-    $f = $_SESSION[$chave] ?? ['n' => 0, 't' => time()];
-    $_SESSION[$chave] = ['n' => $f['n'] + 1, 't' => time()];
+    return limite_excedido('login_falha', 'email:' . $email, LOGIN_MAX_POR_EMAIL, LOGIN_JANELA)
+        || limite_excedido('login_falha_ip', 'ip:' . ip_cliente(), LOGIN_MAX_POR_IP, LOGIN_JANELA);
+}
+
+function registrar_falha_login(string $email, ?int $uid = null): void
+{
+    registrar_evento('login_falha', 'email:' . $email, $uid, 'E-mail: ' . $email);
+    registrar_evento('login_falha_ip', 'ip:' . ip_cliente(), $uid);
+}
+
+function limpar_falhas_login(string $email): void
+{
+    zerar_eventos('login_falha', 'email:' . $email);
 }

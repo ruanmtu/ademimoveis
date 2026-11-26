@@ -14,15 +14,14 @@ if (is_post()) {
     $email = mb_strtolower(post('email'));
     $ip = $_SERVER['REMOTE_ADDR'] ?? '';
 
-    // limite por navegador: 5 pedidos a cada 15 minutos
-    $_SESSION['resets'] = array_values(array_filter($_SESSION['resets'] ?? [], fn ($t) => $t > time() - 900));
 
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $erro = 'Digite um e-mail válido, como voce@exemplo.com.';
-    } elseif (count($_SESSION['resets']) >= 5) {
+    } elseif (limite_excedido('reset_pedido', 'ip:' . ip_cliente(), 5, 900)) {
+        // limite por conexão: 5 pedidos a cada 15 minutos
         $erro = 'Muitos pedidos seguidos. Aguarde 15 minutos e tente de novo.';
     } else {
-        $_SESSION['resets'][] = time();
+        registrar_evento('reset_pedido', 'ip:' . ip_cliente(), null, 'E-mail: ' . mb_substr($email, 0, 190));
         $u = one("SELECT * FROM usuarios WHERE email = ? AND status = 'ativo'", [$email]);
         // limite por conta: 3 e-mails por hora (evita encher a caixa de alguém)
         $recentes = $u ? (int) val('SELECT COUNT(*) FROM senha_resets WHERE usuario_id = ? AND criado_em >= ?',

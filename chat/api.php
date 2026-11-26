@@ -6,6 +6,7 @@
  */
 require __DIR__ . '/../includes/bootstrap.php';
 
+pagina_privada();
 $u = usuario();
 if (!$u) json_resposta(['erro' => 'Não autenticado'], 401);
 $uid = (int) $u['id'];

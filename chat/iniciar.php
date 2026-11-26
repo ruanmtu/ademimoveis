@@ -21,6 +21,12 @@ $sql = 'SELECT id FROM conversas WHERE interessado_id = ? AND anunciante_id = ? 
 $conv = val($sql, $imovelId ? [$u['id'], $anuncId, $imovelId] : [$u['id'], $anuncId]);
 
 if (!$conv) {
+    // no máximo 20 conversas novas por hora (evita spam para muitos anunciantes)
+    if (limite_excedido('conversa_nova', 'uid:' . $u['id'], 20, 3600)) {
+        flash('erro', 'Você iniciou muitas conversas em pouco tempo. Aguarde um pouco e tente de novo.');
+        redirect('anunciante.php?id=' . $anuncId);
+    }
+    registrar_evento('conversa_nova', 'uid:' . $u['id'], (int) $u['id']);
     q('INSERT INTO conversas (interessado_id, anunciante_id, imovel_id, criado_em, atualizado_em) VALUES (?,?,?,?,?)',
       [$u['id'], $anuncId, $imovelId, agora(), agora()]);
     $conv = insert_id();

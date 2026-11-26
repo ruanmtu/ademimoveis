@@ -13,15 +13,15 @@ $erros = [];
 if ($reset && is_post()) {
     csrf_check();
     $senha = (string) ($_POST['senha'] ?? '');
-    if (strlen($senha) < 8) $erros['senha'] = 'Use pelo menos 8 caracteres.';
+    if ($probSenha = problema_senha($senha, $reset['email'], $reset['nome'])) $erros['senha'] = $probSenha;
     elseif ($senha !== ($_POST['senha2'] ?? '')) $erros['senha2'] = 'As duas senhas estão diferentes.';
 
     if (!$erros) {
         q('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [password_hash($senha, PASSWORD_DEFAULT), $reset['usuario_id']]);
         // este e qualquer outro link pendente deixam de valer
         q('UPDATE senha_resets SET usado_em = ? WHERE usuario_id = ? AND usado_em IS NULL', [agora(), $reset['usuario_id']]);
-        q('INSERT INTO pagamentos (usuario_id, tipo, status, payload, criado_em) VALUES (?,?,?,?,?)',
-          [$reset['usuario_id'], 'senha_redefinida', 'ok', json_encode(['ip' => $_SERVER['REMOTE_ADDR'] ?? '']), agora()]);
+        registrar_evento('senha_redefinida', '', (int) $reset['usuario_id'], 'Pelo link enviado por e-mail');
+        limpar_falhas_login($reset['email']);
         if (logado()) sair();
         if (session_status() !== PHP_SESSION_ACTIVE) session_start();
         flash('sucesso', 'Senha alterada! Entre com a nova senha.');
@@ -29,6 +29,8 @@ if ($reset && is_post()) {
     }
 }
 
+pagina_privada();
+header('Referrer-Policy: no-referrer'); // o link com o código não vaza para outros sites
 $titulo = 'Criar nova senha';
 $scripts = ['js/auth.js'];
 $ladoTitulo = 'Quase lá';

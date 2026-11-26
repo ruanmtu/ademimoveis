@@ -238,6 +238,19 @@ CREATE TABLE IF NOT EXISTS senha_resets (
   CONSTRAINT fk_senha_resets_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Eventos de segurança (login, limites anti-abuso, troca de senha)
+CREATE TABLE IF NOT EXISTS seguranca_eventos (
+  id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  acao        VARCHAR(40)  NOT NULL,
+  chave       CHAR(64)     NOT NULL,
+  ip          VARCHAR(45)  NULL,
+  usuario_id  INT UNSIGNED NULL,
+  detalhe     VARCHAR(255) NULL,
+  criado_em   DATETIME     NOT NULL,
+  KEY idx_seg_chave (acao, chave, criado_em),
+  KEY idx_seg_data (criado_em)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 SET FOREIGN_KEY_CHECKS = 1;
 
 -- Planos de exemplo (altere nomes, valores e limites em Admin → Planos)

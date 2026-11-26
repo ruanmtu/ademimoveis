@@ -93,17 +93,24 @@ uploads/                               fotos enviadas (não versionar)
 
 ## Segurança já incluída
 
-- Senhas com `password_hash` e bloqueio temporário após 5 tentativas erradas de login
+- HTTPS obrigatório (redirecionamento feito pelo PHP) e HSTS
+- Cabeçalhos de proteção: Content-Security-Policy, anti-clickjacking, nosniff, Permissions-Policy
+- Senhas com `password_hash` (bcrypt); senhas muito comuns são recusadas
+- Bloqueio de login gravado no banco: 5 erros na mesma conta ou 20 do mesmo IP travam por 15 minutos
+- Limites contra abuso: cadastros por IP, pedidos de nova senha, conversas novas e mensagens do chat
+- Sessão: cookie HttpOnly/Secure/SameSite, saída automática por inatividade (4 h; 2 h para admin) e queda dos outros aparelhos quando a senha muda
 - Proteção CSRF em todos os formulários e na API do chat
 - Consultas com *prepared statements* (contra SQL injection) e escape de todo conteúdo exibido (contra XSS)
-- Fotos validadas e regravadas como JPEG, o que descarta arquivos disfarçados, e PHP desativado na pasta `uploads/`
-- Ninguém consegue se cadastrar como administrador pelo site
-- O webhook consulta a API do Mercado Pago antes de ativar qualquer assinatura e valida a assinatura secreta
+- Fotos validadas e regravadas como JPEG (descarta arquivos disfarçados e apaga a localização GPS); a pasta `uploads/` só serve imagens e não executa PHP
+- Erros inesperados aparecem como uma página simples, sem detalhes técnicos
+- Registro de acessos (tabela `seguranca_eventos`, 6 meses) em Admin → Segurança, com verificação da configuração do servidor
+- Página pública de Privacidade e segurança (LGPD) e selo no rodapé
+- Deploy por FTPS (criptografado)
 
 ## Antes de lançar
 
-- [ ] Trocar o texto provisório de `termos.php` por termos e política de privacidade revisados (LGPD)
-- [ ] Ativar HTTPS (descomente as linhas no `.htaccess`)
+- [ ] Pedir para um advogado revisar `termos.php` e `privacidade.php`
+- [ ] Definir `APP_URL` no `config.php` com o domínio definitivo
 - [ ] Trocar as credenciais de teste do Mercado Pago pelas de produção
 - [ ] Apagar `instalar.php`
 - [ ] Configurar backup diário do banco e da pasta `uploads/`

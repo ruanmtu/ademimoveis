@@ -1,13 +1,26 @@
-Options -Indexes
+Options -Indexes -MultiViews
 DirectoryIndex index.php
 AddDefaultCharset UTF-8
+ServerSignature Off
 
-# Bloqueia arquivos internos
-<FilesMatch "^(\.env|\.git.*|composer\.(json|lock)|README\.md)$">
+# Arquivos internos, ocultos, de configuração e de backup nunca são servidos
+<FilesMatch "(^\.|\.(sql|bak|old|orig|save|swp|tmp|log|ini|sh|yml|yaml|md|lock|dist|env|git|sqlite|db)$|^composer\.(json|lock)$)">
   Require all denied
 </FilesMatch>
 
-# Força HTTPS em produção (descomente quando o certificado SSL estiver ativo)
-# RewriteEngine On
-# RewriteCond %{HTTPS} off
-# RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  # pastas internas (git, GitHub Actions) ficam invisíveis
+  RewriteRule (^|/)\.(git|github)(/|$) - [R=404,L]
+  # HTTPS: o redirecionamento para https:// é feito pelo PHP (includes/seguranca.php),
+  # que reconhece o proxy da Hostinger e não entra em loop.
+</IfModule>
+
+# Proteções do navegador também para imagens, CSS e JS (as páginas PHP enviam a política completa)
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always unset X-Powered-By
+  Header unset X-Powered-By
+</IfModule>

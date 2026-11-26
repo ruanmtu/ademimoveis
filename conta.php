@@ -60,10 +60,10 @@ if (is_post()) {
                 q('UPDATE usuarios SET documento_tipo = ?, documento = ?, creci_uf = ?, creci_status = ?, creci_verificado_em = ? WHERE id = ?',
                   [$docTipo, $docNum, $creciUf, $creciSt, $creciEm, $u['id']]);
                 q('UPDATE usuarios SET nome = ?, telefone = ?, whatsapp = ?, creci = ?, cidade = ?, estado = ?, bio = ?, foto = ? WHERE id = ?', [
-                    $nome, post('telefone') ?: null,
-                    $anunc ? (post('whatsapp') ?: null) : $u['whatsapp'],
+                    mb_substr($nome, 0, 120), mb_substr(post('telefone'), 0, 20) ?: null,
+                    $anunc ? (mb_substr(post('whatsapp'), 0, 20) ?: null) : $u['whatsapp'],
                     $creci,
-                    post('cidade') ?: null, $estado ?: null,
+                    mb_substr(post('cidade'), 0, 120) ?: null, $estado ?: null,
                     $anunc ? (mb_substr(post('bio'), 0, 2000) ?: null) : $u['bio'],
                     $foto, $u['id'],
                 ]);
@@ -75,21 +75,26 @@ if (is_post()) {
     } elseif ($acao === 'senha') {
         $atual = (string) ($_POST['senha_atual'] ?? '');
         $nova = (string) ($_POST['senha_nova'] ?? '');
-        if (!password_verify($atual, $u['senha_hash'])) {
+        if (limite_excedido('senha_atual_falha', 'uid:' . $u['id'], 5, 900)) {
+            flash('erro', 'Muitas tentativas com a senha atual errada. Aguarde 15 minutos ou use "Esqueceu a senha?".');
+        } elseif (!password_verify($atual, $u['senha_hash'])) {
+            registrar_evento('senha_atual_falha', 'uid:' . $u['id'], (int) $u['id']);
             flash('erro', 'Senha atual incorreta.');
-        } elseif (strlen($nova) < 8) {
-            flash('erro', 'A nova senha precisa ter pelo menos 8 caracteres.');
+        } elseif ($probSenha = problema_senha($nova, $u['email'], $u['nome'])) {
+            flash('erro', 'Nova senha: ' . $probSenha);
         } elseif ($nova !== ($_POST['senha_nova2'] ?? '')) {
             flash('erro', 'As senhas não conferem.');
         } else {
             q('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [password_hash($nova, PASSWORD_DEFAULT), $u['id']]);
-            session_regenerate_id(true);
-            flash('sucesso', 'Senha alterada.');
+            renovar_sessao_apos_senha((int) $u['id']);
+            registrar_evento('senha_trocada', '', (int) $u['id'], 'Pela página Minha conta');
+            flash('sucesso', 'Senha alterada. Se a sua conta estava aberta em outro aparelho, ela foi desconectada.');
         }
     }
     redirect('conta.php');
 }
 
+pagina_privada();
 $titulo = 'Minha conta';
 $scripts = ['js/documentos.js', 'js/auth.js'];
 require __DIR__ . '/includes/header.php';
